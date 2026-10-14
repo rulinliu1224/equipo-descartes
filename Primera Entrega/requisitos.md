@@ -1,0 +1,206 @@
+# Documento de requisitos
+
+## Requisitos de negocio
+
+- BR1. Automatizar la facturación recurrente de los clientes a partir de su suscripción.
+- BR2. Mejorar el cobro de las facturas y reducir la deuda pendiente mediante recordatorios automáticos.
+- BR3. Facilitar la gestión de la información comercial y fiscal de los clientes y de sus suscripciones.
+- BR4. Reducir el tiempo necesario para dar de alta clientes y encontrar facturas o clientes.
+- BR5. Controlar las operaciones sensibles y los cambios de tarifa mediante aprobaciones.
+- BR6. Mantener un registro de lo que se le ha ido haciendo a cada cliente, por si el cliente lo pide en un futuro.
+- BR7. Tener una visión clara de lo facturado, cobrado, pendiente y vencido.
+
+## Requisitos de usuario
+
+- UR1. El usuario podrá iniciar sesión con su email del dominio corporativo y recuperar su contraseña.
+- UR2. El usuario podrá dar de alta, dar de baja, reactivar y gestionar los clientes que tiene asignados, así como sus suscripciones.
+- UR3. El usuario podrá crear facturas puntuales, editar el borrador de una factura y ver una vista previa.
+- UR4. El usuario podrá registrar pagos y hacer seguimiento del cobro de las facturas.
+- UR5. El usuario podrá pausar los recordatorios de una factura en disputa.
+- UR6. El usuario podrá buscar globalmente datos en la aplicación y aplicar filtros.
+- UR7. El usuario podrá consultar su trabajo pendiente y las notificaciones de los clientes de los que es responsable.
+- UR8. El usuario podrá abrir y seguir incidencias o tickets de facturación de un cliente.
+- UR9. El usuario podrá consultar informes y el dashboard financiero y exportarlos a CSV y PDF.
+- UR10. El administrador podrá aprobar o rechazar operaciones sensibles y cambios de tarifa desde una bandeja de aprobaciones.
+- UR11. El administrador podrá configurar plazos, recordatorios, impuestos, moneda, tarifas y plantillas de email.
+- UR12. El superadministrador podrá gestionar los usuarios internos, sus roles, clientes asignados y permisos temporales.
+- UR13. El superadministrador podrá consultar el registro de los procesos automáticos y la pantalla de salud del sistema.
+- UR14. Un sistema externo podrá consultar clientes, facturas, pagos o deuda pendiente y notificar solicitudes de baja mediante una API autenticada.
+
+## Requisitos funcionales
+
+- FR1. El sistema permitirá iniciar sesión con email del dominio corporativo.
+- FR1.1. El sistema permitirá recuperar la contraseña mediante un enlace que caduca al tiempo.
+  - Dependencias: FR1.
+- FR2. El sistema permitirá gestionar usuarios internos (crear y desactivar), sin autorregistro.
+  - Dependencias: FR1 (requiere usuario autenticado).
+- FR3. El sistema permitirá asignar roles (Superadministrador, Administrador, Usuario) y clientes a cada usuario.
+  - Dependencias: FR2.
+- FR3.1. El sistema permitirá dar permisos temporales a un usuario.
+  - Dependencias: FR3.
+- FR4. El sistema permitirá gestionar clientes (alta, baja, reactivación…) con datos comerciales y fiscales separados.
+  - Dependencias: FR1.
+- FR4.1. El sistema permitirá registrar varios contactos por empresa.
+  - Dependencias: FR4.
+- FR4.2. El sistema permitirá importar clientes desde CSV con previsualización y resumen de creados, actualizados y rechazados.
+  - Dependencias: FR4.
+- FR5. El sistema permitirá gestionar la suscripción del cliente (plan, tarifa acordada, fecha de inicio, responsable interno, condiciones de pago y descuentos).
+  - Dependencias: FR4.
+- FR5.1. El sistema permitirá revisar anualmente la facturación de cada cliente.
+  - Dependencias: FR5, FR6.
+- FR5.2. El sistema exigirá que los cambios de tarifa los apruebe un usuario; no se podrán hacer de forma automática.
+  - Dependencias: FR5.1, FR12.
+- FR5.3. El sistema permitirá la baja de la recurrencia aunque el cliente no haya pagado facturas anteriores, manteniendo activo el recobro de las facturas pendientes.
+  - Dependencias: FR5, FR11.
+- FR6. El sistema generará facturas recurrentes automáticamente el día 1 a partir de la suscripción.
+  - Dependencias: FR5.
+- FR6.1. El sistema aplicará un descuento en las altas a mitad de mes.
+  - Dependencias: FR6.
+- FR7. El sistema permitirá crear facturas puntuales (concepto, cantidad, precio unitario, descuento e impuesto).
+  - Dependencias: FR4.
+- FR8. El sistema permitirá gestionar las facturas y editar el borrador.
+  - Dependencias: FR6, FR7.
+- FR8.1. El sistema permitirá ver una vista previa de la factura.
+  - Dependencias: FR8.
+- FR8.2. El sistema generará el PDF de la factura con la identidad corporativa.
+  - Dependencias: FR8.
+- FR8.3. El sistema conservará el PDF original emitido.
+  - Dependencias: FR8.2.
+- FR9. El sistema permitirá registrar pagos (Stripe u otro sistema).
+  - Dependencias: FR8.
+- FR9.1. El sistema detectará eventos de pago duplicados o importes incorrectos.
+  - Dependencias: FR9.
+- FR10. El sistema enviará las facturas por email y/o WhatsApp.
+  - Dependencias: FR8.2.
+- FR11. El sistema enviará recordatorios automáticos por email y/o WhatsApp según un calendario configurable.
+  - Dependencias: FR9, FR10, FR20.
+- FR11.1. El sistema permitirá modificar el calendario de recordatorios de un cliente según lo pactado con él.
+  - Dependencias: FR11.
+- FR11.2. El sistema permitirá pausar los recordatorios de una factura cuando está en disputa, indicando un motivo y una fecha de revisión.
+  - Dependencias: FR11.
+- FR12. El sistema permitirá aprobar o rechazar operaciones sensibles desde una bandeja de aprobaciones.
+  - Dependencias: FR3.
+- FR12.1. El sistema mandará una operación a la bandeja de aprobaciones cuando cruce un umbral de precio previamente configurado.
+  - Dependencias: FR12, FR20.
+- FR13. El sistema permitirá buscar globalmente datos en la aplicación.
+  - Dependencias: FR1.
+- FR13.1. El sistema permitirá aplicar filtros (cliente, ubicación, sector, estado de factura, recurrente/puntual, fecha, responsable).
+  - Dependencias: FR13.
+- FR14. El sistema permitirá consultar informes configurables.
+  - Dependencias: FR8, FR9.
+- FR14.1. El sistema mostrará un dashboard financiero (facturado, cobrado, pendiente, vencido).
+  - Dependencias: FR14.
+- FR14.2. El sistema permitirá exportar los informes y el dashboard a CSV y PDF.
+  - Dependencias: FR14, FR14.1.
+- FR15. El sistema mostrará en un dashboard o tabla el trabajo pendiente que tiene un usuario.
+  - Dependencias: FR3.
+- FR16. El sistema notificará internamente al responsable de cada cliente los eventos relevantes, con prioridad y estado.
+  - Dependencias: FR3, FR5.
+- FR17. El sistema permitirá abrir y seguir incidencias o tickets de facturación de un cliente.
+  - Dependencias: FR4.
+- FR18. El sistema guardará logs de lo que se le ha ido haciendo a cada cliente, para que haya un registro por si el cliente lo pide en un futuro.
+  - Dependencias: FR4.
+- FR19. El sistema ofrecerá una API autenticada para consultar clientes, facturas, pagos o deuda pendiente.
+  - Dependencias: FR4, FR8, FR9.
+- FR19.1. El sistema permitirá notificar solicitudes de baja a través de la API.
+  - Dependencias: FR19, FR5.3.
+- FR20. El sistema permitirá configurar la mayoría de la interfaz (plazos, recordatorios, impuestos, moneda (euro, dólar…), tarifas, plantillas de email).
+  - Dependencias: FR3.
+- FR21. El sistema registrará lo que van haciendo los procesos automáticos.
+- FR21.1. El sistema mostrará una pantalla de salud del sistema.
+  - Dependencias: FR21.
+
+## Requisitos no funcionales
+
+- NFR1. Usabilidad.
+  - Descripción: Uso simple e interactivo de la aplicación.
+  - Dependencias: FR4, FR5, FR13.
+  - Métrica / Criterio de aceptación: Un usuario que no conoce la aplicación da de alta un cliente estándar con su suscripción en menos de 5 minutos o es capaz de encontrar una factura o cliente en menos de un minuto.
+  - Método de verificación: Pruebas de usabilidad cronometradas con usuarios que no conocen la aplicación.
+- NFR2. Compatibilidad con navegadores.
+  - Descripción: La aplicación será compatible con las últimas versiones de los navegadores más comunes (Chrome, Firefox, Safari y Edge) y también con la interfaz web en el móvil.
+  - Métrica / Criterio de aceptación: Las funcionalidades principales funcionan sin errores en la última versión estable de Chrome, Firefox, Safari y Edge, en escritorio y en móvil.
+  - Método de verificación: Pruebas manuales y automáticas en los distintos navegadores (por ejemplo con Playwright o BrowserStack).
+- NFR3. Diseño web para móviles.
+  - Descripción: La interfaz usará los estándares de diseño web para móviles, incluyendo que se pueda hacer zoom.
+  - Métrica / Criterio de aceptación: Cumplimiento de pautas WCAG 2.1 nivel AA en las vistas principales, el zoom no está bloqueado y no hay desbordamientos horizontales en resoluciones de 360px a 1920px.
+  - Método de verificación: Pruebas manuales en diferentes resoluciones (Chrome DevTools) y análisis automático con Lighthouse / Axe core.
+- NFR4. Rendimiento de las búsquedas.
+  - Descripción: Las búsquedas habituales responden rápido aunque haya muchos datos.
+  - Dependencias: FR13, FR13.1.
+  - Métrica / Criterio de aceptación: El 95% de las búsquedas habituales responden en menos de 2 segundos con miles de clientes y cientos de miles de facturas.
+  - Método de verificación: Pruebas de carga con datos de prueba de ese volumen mediante Apache JMeter o k6.
+- NFR5. Operaciones pesadas en segundo plano.
+  - Descripción: Las operaciones pesadas se ejecutan en segundo plano y avisan al terminar.
+  - Dependencias: FR4.2, FR6, FR14.2, FR16.
+  - Métrica / Criterio de aceptación: Mientras se ejecuta una operación pesada (generación de facturas, importación de CSV, exportaciones) la interfaz sigue respondiendo y el usuario recibe un aviso al terminar.
+  - Método de verificación: Pruebas de integración lanzando una importación o generación grande y comprobando que la interfaz responde y que llega el aviso.
+- NFR6. Tolerancia a fallos en el procesamiento.
+  - Descripción: El fallo de un cliente en el procesamiento no detiene el proceso del resto.
+  - Dependencias: FR6, FR21.
+  - Métrica / Criterio de aceptación: Si falla el procesamiento de un cliente, el resto de clientes se procesa igualmente y el fallo queda registrado.
+  - Método de verificación: Pruebas de integración introduciendo un cliente con datos erróneos en un lote de procesamiento.
+- NFR7. Concurrencia y consistencia.
+  - Descripción: El sistema detectará conflictos cuando dos usuarios editan el mismo elemento y garantizará la consistencia.
+  - Métrica / Criterio de aceptación: Si dos usuarios guardan el mismo elemento, el segundo guardado se rechaza con un aviso de conflicto y no se pierden cambios sin avisar.
+  - Método de verificación: Pruebas de integración con ediciones simultáneas del mismo elemento.
+- NFR8. Acceso restringido al dominio corporativo.
+  - Descripción: Acceso solo con email del dominio corporativo.
+  - Dependencias: FR1.
+  - Métrica / Criterio de aceptación: El 100% de los intentos de acceso con un email de otro dominio se rechazan.
+  - Método de verificación: Pruebas unitarias/de integración de los endpoints de autenticación.
+- NFR9. Contraseñas cifradas.
+  - Descripción: Las contraseñas se guardan cifradas con hash.
+  - Dependencias: FR1, FR1.1.
+  - Métrica / Criterio de aceptación: Ninguna contraseña se guarda en texto plano; se usa un algoritmo de hash seguro (por ejemplo bcrypt o Argon2).
+  - Método de verificación: Inspección de código y de la base de datos.
+- NFR10. Cierre de sesión por inactividad.
+  - Descripción: La sesión se cierra automáticamente por inactividad.
+  - Dependencias: FR1.
+  - Métrica / Criterio de aceptación: La sesión se cierra tras un tiempo de inactividad configurado (por ejemplo 30 minutos).
+  - Método de verificación: Pruebas manuales y automáticas dejando la sesión inactiva.
+- NFR11. Autorización en servidor.
+  - Descripción: La autorización se comprueba en el servidor.
+  - Dependencias: FR3, FR19.
+  - Métrica / Criterio de aceptación: Cualquier petición sin permisos se rechaza en el servidor, aunque se haga sin pasar por la interfaz.
+  - Método de verificación: Pruebas de integración de los endpoints y análisis con OWASP ZAP o Burp Suite.
+- NFR12. Regla de redondeo fija.
+  - Descripción: Los importes se calculan con una regla de redondeo fija.
+  - Dependencias: FR6, FR7, FR14.
+  - Métrica / Criterio de aceptación: Todos los importes usan la misma regla de redondeo y dan el mismo resultado en la factura, el PDF y los informes.
+  - Método de verificación: Pruebas unitarias con casos límite de redondeo.
+- NFR13. Fechas y zonas horarias.
+  - Descripción: Las fechas y zonas horarias se guardarán en UTC, pero también se muestran en la zona del cliente.
+  - Métrica / Criterio de aceptación: Todas las fechas se guardan en UTC y se muestran correctamente en la zona horaria del cliente.
+  - Método de verificación: Inspección de la base de datos y pruebas unitarias con distintas zonas horarias.
+- NFR14. Varios idiomas.
+  - Descripción: Interfaz preparada para varios idiomas (español e inglés).
+  - Métrica / Criterio de aceptación: Todos los textos de la interfaz están disponibles en español e inglés y no hay textos fijos en el código.
+  - Método de verificación: Revisión de código y pruebas manuales cambiando de idioma.
+- NFR15. Copias de seguridad.
+  - Descripción: Copias de seguridad automáticas diarias de datos y documentos, con posibilidad de restaurar una versión previa.
+  - Métrica / Criterio de aceptación: Se hace una copia de seguridad cada día y se puede restaurar una versión previa correctamente.
+  - Método de verificación: Revisión de los registros de las copias y simulacro de restauración.
+- NFR16. Conservación de los datos de facturas.
+  - Descripción: Se conservan los datos de facturas de clientes aunque se den de baja.
+  - Dependencias: FR4, FR8.3.
+  - Métrica / Criterio de aceptación: Después de dar de baja a un cliente, sus facturas y PDFs siguen accesibles.
+  - Método de verificación: Pruebas de integración dando de baja un cliente con facturas.
+- NFR17. Mantenibilidad.
+  - Descripción: Cada regla está definida en un único sitio.
+  - Métrica / Criterio de aceptación: No hay reglas de negocio duplicadas en el código (cálculo de importes, impuestos, descuentos…).
+  - Método de verificación: Revisión de código y análisis estático de duplicación (por ejemplo con SonarQube).
+- NFR18. Documentación.
+  - Descripción: Documentación de cómo funciona el programa, de la API y del despliegue.
+  - Dependencias: FR19.
+  - Métrica / Criterio de aceptación: Existen los tres documentos y todos los endpoints de la API están documentados.
+  - Método de verificación: Revisión de la documentación y despliegue de prueba siguiendo la guía.
+- NFR19. Integraciones sustituibles.
+  - Descripción: Las integraciones (Stripe, email, WhatsApp) son sustituibles sin cambiar el modelo de factura.
+  - Dependencias: FR9, FR10, FR11.
+  - Métrica / Criterio de aceptación: Cambiar una integración por otra no requiere modificar el modelo de factura.
+  - Método de verificación: Revisión de la arquitectura y prueba sustituyendo una integración por una simulada.
+- NFR20. Sin inteligencia artificial.
+  - Descripción: Nada de depender de inteligencia artificial.
+  - Métrica / Criterio de aceptación: Ninguna funcionalidad usa servicios ni librerías de inteligencia artificial.
+  - Método de verificación: Revisión del código y de las dependencias del proyecto.

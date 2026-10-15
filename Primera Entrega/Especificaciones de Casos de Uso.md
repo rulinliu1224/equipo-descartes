@@ -46,49 +46,57 @@
 </details>
 
 ---
-
 <details>
 <summary><b>CU-02: Gestionar Suscripción y Baja de Cliente</b></summary>
-
+ 
 ### CU-02: Gestionar Suscripción y Baja de Cliente
-
+ 
 * **ID / Código:** `CU-02`
 * **Nombre del Caso de Uso:** Gestionar suscripción (plan, tarifa, pausa, baja)
-* **Descripción:** El usuario operativo administra los planes/tarifas de un cliente o procesa la solicitud de baja. Si existen facturas pendientes de pago, no se permite dar de baja al cliente ni detener la generación de sus facturas recurrentes hasta recibir la confirmación del pago pendiente.
+* **Descripción:** El usuario operativo administra la suscripción de un cliente (plan, tarifa acordada, fecha de inicio, responsable, condiciones de pago y descuentos), la pausa o procesa la baja de la recurrencia. La baja puede tramitarse aunque el cliente tenga facturas pendientes: en ese caso se deja de generar facturas recurrentes, pero el recobro de las facturas pendientes sigue activo.
 * **Actor Principal:** Usuario operativo.
+* **Actores Secundarios:** Stripe (Sistema externo), Servicio de email / WhatsApp (Sistema externo).
 * **Ámbito (Scope):** Sistema de Facturación.
 * **Nivel (Level):** Objetivo de usuario.
-
+* **Requisitos relacionados:** UR2, FR5, FR5.2, FR5.3, FR12.1, FR18.
+  
 #### Interesados e Intereses
-* **Cliente:** Solicitar la baja o el cambio de su suscripción.
-* **Empresa:** Cobrar todas las deudas pendientes antes de dar la baja definitiva.
-
+* **Cliente:** Solicitar la baja o el cambio de su suscripción y dejar de recibir facturas nuevas.
+* **Empresa:** Cobrar todas las deudas pendientes aunque el cliente se dé de baja, y controlar los cambios de tarifa.
+  
 #### Condiciones y Garantías
 * **Precondiciones:**
   * El usuario debe estar autenticado en el sistema.
-  * El cliente debe existir en la base de datos.
-* **Garantía de Éxito:** La suscripción es actualizada o el cliente se da de baja si no presenta facturas impagas.
-* **Garantía Mínima:** No se permite la baja total si existen facturas vencidas sin saldar.
+  * El cliente debe existir en la base de datos y estar asignado al usuario (o el usuario tener permiso sobre él).
+* **Garantía de Éxito:** La suscripción queda actualizada, pausada o dada de baja; el cambio queda registrado en el historial del cliente.
+* **Garantía Mínima:** Las facturas ya emitidas y su recobro no se ven afectados por ningún cambio en la suscripción. Si la operación falla, la suscripción conserva su estado anterior.
 
 #### Flujos de Eventos
-* **Disparador:** El usuario selecciona un cliente e intenta gestionar la suscripción o dar de baja.
+* **Disparador:** El usuario selecciona un cliente y elige gestionar su suscripción, o llega una solicitud de baja por la API.
 
-**Escenario Principal de Éxito:**
+**Escenario Principal de Éxito (baja de la recurrencia):**
 1. El usuario busca y selecciona al cliente.
-2. El sistema muestra el estado actual de la suscripción y del historial de pagos.
-3. El usuario solicita tramitar la baja del cliente.
-4. El sistema verifica que el cliente tenga todas sus facturas al día (cobros pendientes == 0).
-5. El sistema registra la baja del cliente y cancela la suscripción en el sistema y en Stripe a través de la api.
-6. El sistema emite la confirmación de la baja a los interesados (Cliente y Administrador)
-
+2. El sistema muestra el estado actual de la suscripción y el resumen de deuda pendiente.
+3. El usuario solicita tramitar la baja de la recurrencia indicando motivo y fecha efectiva.
+4. El sistema verifica si el cliente tiene facturas pendientes de pago.
+5. El sistema registra la baja de la recurrencia y cancela la suscripción en Stripe a través de la API.
+6. El sistema deja de incluir al cliente en la generación automática de facturas recurrentes.
+7. El sistema registra la operación en el historial del cliente y emite la confirmación de la baja al Cliente y a los Usuarios responsables.
+   
 **Extensiones (Flujos Alternativos):**
-***4a. El cliente presenta facturas pendientes/impagas (Intento de dar de baja cliente con deudas):**
-  * 4a1. El sistema rechaza la solicitud de baja e informa que hay deudas pendientes por saldar.
-  * 4a2. El sistema mantiene al cliente en estado activo, **continuando con la generación habitual de facturas recurrentes**.
-<!-- TODO: Definir si se hace un estado intermedio de cliente activo pero sin bloqueando la generación de facturas o cliente activo pero continuando con la generación habitual -->
-  * 4a3. El sistema continúa enviando notificaciones y recordatorios automáticos de impago al cliente.
-  * 4a4. Al recibir la confirmación de pago de la factura pendiente (vía Webhook de Stripe), el sistema habilita nuevamente la opción de procesar la baja definitiva.
-<!-- TODO: Definir si se hace de forma automatica la baja del cliente en el sistema o se envia una notificación al Administrador y que este lo de de baja. -->
+* **3a. Cambio de plan o tarifa:**
+  * 3a1. El usuario modifica el plan o la tarifa acordada.
+  * 3a2. El sistema envía el cambio a la bandeja de aprobaciones (`<<include>>` Solicitar aprobación); el cambio no se aplica hasta ser aprobado por un Administrador.
+* **3b. Pausa de la suscripción:**
+  * 3b1. El usuario indica fecha de inicio y de fin de la pausa y el motivo.
+  * 3b2. El sistema no genera facturas recurrentes durante el periodo pausado y la reactiva automáticamente al finalizar.
+* **4a. El cliente tiene facturas pendientes o en mora:**
+  * 4a1. El sistema avisa al usuario del importe pendiente y le pide confirmación para continuar.
+  * 4a2. El sistema registra la baja de la recurrencia, pero mantiene al cliente en estado "Baja con deuda".
+  * 4a3. El sistema mantiene activos los recordatorios de cobro de las facturas pendientes.
+  * 4a4. Cuando se confirma el pago de la última factura pendiente, el sistema pasa el cliente a estado "Baja" y notifica al Usuario/Administrador responsable.
+* **5a. Fallo en la cancelación en Stripe:**
+  * 5a1. El sistema registra la incidencia, notifica al Administrador y reintenta la cancelación más tarde. La baja queda registrada en el sistema.
 </details>
 
 ---

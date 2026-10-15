@@ -357,42 +357,50 @@
 </details>
 
 ---
-
+ 
 <details>
 <summary><b>CU-08: Gestionar Usuarios y Permisos</b></summary>
-
+ 
 ### CU-08: Gestionar Usuarios y Permisos
-
+ 
 * **ID / Código:** `CU-08`
-* **Nombre del Caso de Uso:** Gestionar usuarios y permisos (Control de acceso basado en roles)
-* **Descripción:** Permite al Administrador dar de alta, modificar, desactivar o asignar roles (Ej. Administrador, Usuario operativo) a los usuarios del sistema para controlar el acceso a los diferentes módulos e información sensible.
+* **Nombre del Caso de Uso:** Gestionar usuarios y permisos (control de acceso basado en roles)
+* **Descripción:** Permite dar de alta, modificar y desactivar usuarios internos, asignarles roles (Administrador, Usuario operativo), clientes asignados y permisos.
 * **Actor Principal:** Administrador.
-* **Actores Secundarios:** Ninguno.
+* **Actores Secundarios:** Servicio de email (Sistema Externo).
 * **Ámbito (Scope):** Módulo de Administración de Usuarios.
 * **Nivel (Level):** Objetivo de usuario.
-
+* **Requisitos relacionados:** UR12, FR2, FR3, FR3.1, NFR11.
+  
 #### Interesados e Intereses
-* **Empresa:** Garantizar la seguridad de la información limitando las acciones operativas según el perfil del empleado.
+* **Empresa:** Garantizar la seguridad de la información limitando las acciones según el perfil del empleado.
 
 #### Condiciones y Garantías
 * **Precondiciones:**
-  * El Administrador debe estar autenticado (`CU-01`).
-  * El Administradotr tiene que tener la opción de asignar permisos.(Dados por el Superadministrador)
-* **Garantía de Éxito:** Se actualizan los roles, credenciales o permisos en el sistema y se aplican de inmediato a las sesiones de los usuarios.
-* **Garantía Mínima:** No se permite eliminar o desactivar al Superadministrador del sistema.
-
+  * El Administrador debe estar autenticado y tener permiso de gestión de usuarios.
+* **Garantía de Éxito:** Se actualizan los roles, clientes asignados o permisos y se aplican de inmediato a las sesiones de los usuarios.
+* **Garantía Mínima:** No se permite eliminar ni desactivar al Superadministrador, ni que un Administrador se asigne a sí mismo un rol superior.
+  
 #### Flujos de Eventos
-**Disparador:** El Administrador accede al panel de 'Gestión de Usuarios y Permisos'.
+**Disparador:** El Administrador accede al panel de gestión de usuarios y permisos.
+ 
 **Escenario Principal de Éxito:**
 1. El Administrador visualiza la lista de usuarios del sistema.
-2. Selecciona un usuario existente o la opción para crear un nuevo usuario.
-3. Define los datos personales, correo corporativo y asigna el rol correspondiente (Adminisrador/ Usuario operativo).
-4. El sistema guarda la configuración y asigna la matriz de permisos correspondiente.
-5. El sistema envía un correo al nuevo usuario con las credenciales o enlace de activación.
-
+2. Selecciona un usuario existente o la opción de crear un nuevo usuario.
+3. Define los datos personales, el correo corporativo, el rol y los clientes asignados.
+4. El sistema valida el dominio del correo, guarda la configuración y aplica la matriz de permisos del rol.
+5. El sistema envía al nuevo usuario un enlace de activación para definir su contraseña.
+   
 **Extensiones (Flujos Alternativos):**
-* **3a. Desactivación/Revocación de acceso a un usuario:**
+* **3a. Desactivación de un usuario:**
   * 3a1. El Administrador cambia el estado del usuario a "Inactivo".
-  * 3a2. El sistema invalida inmediatamente todas las sesiones activas de dicho usuario.
-
+  * 3a2. El sistema invalida inmediatamente sus sesiones activas.
+  * 3a3. Si el usuario tenía clientes asignados, el sistema pide reasignarlos a otro responsable.
+* **3b. Permiso temporal:**
+  * 3b1. El Administrador concede un permiso adicional indicando fecha de inicio y de fin.
+  * 3b2. Al llegar la fecha de fin, el sistema retira el permiso automáticamente y lo registra.
+* **4a. Correo de dominio no corporativo o ya existente:**
+  * 4a1. El sistema rechaza el alta e indica el motivo.
 </details>
+
+---

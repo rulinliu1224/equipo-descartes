@@ -301,42 +301,59 @@
 
 <details>
 <summary><b>CU-07: Gestionar Cobros y Pasarela de Pagos</b></summary>
-
-### CU-07: Gestionar Cobros y Pasarela de Pagos
-
+ 
+### CU-07: Gestionar Cobros (pagos, recordatorios en disputa)
+ 
 * **ID / Código:** `CU-07`
 * **Nombre del Caso de Uso:** Gestionar cobros y pasarela de pagos
-* **Descripción:** Administra el procesamiento de los pagos de facturas (recurrentes y puntuales) a través de la integración con Stripe. Gestiona la actualización automática del estado de la factura ("Pagada", "Parcial", "Fallida") e impacta directamente el saldo del cliente.
-* **Actor Principal:** Stripe / Pasarela de Pagos (`<<sistema externo>>`) / Usuario operativo.
+* **Descripción:** Registra los pagos de las facturas (automáticamente vía Stripe o manualmente por otros medios), actualiza el estado de la factura ("Pagada", "Parcial", "Fallida") y el saldo del cliente, y permite pausar los recordatorios de una factura en disputa.
+* **Actor Principal:** Usuario operativo / Stripe (Sistema Externo).
 * **Actores Secundarios:** Sistema.
 * **Ámbito (Scope):** Módulo de Transacciones y Pagos.
-* **Nivel (Level):** Subfunción / Proceso de transacción.
-
+* **Nivel (Level):** Objetivo de usuario / Subfunción (vía webhook).
+* **Requisitos relacionados:** UR4, UR5, FR9, FR9.1, FR11.2, FR18, NFR19.
+  
 #### Interesados e Intereses
-* **Empresa:** Asegurar el registro inmediato de los ingresos y conciliar automáticamente los pagos recibidos con las facturas emitidas.
-* **Cliente:** Obtener la confirmación y comprobante de pago de forma instantánea al abonar su factura.
-
+* **Empresa:** Registrar de inmediato los ingresos, conciliar los pagos con las facturas y detectar errores de cobro.
+* **Cliente:** Obtener la confirmación del pago al abonar su factura.
+  
 #### Condiciones y Garantías
 * **Precondiciones:**
-  * Existencia de una factura en estado "Pendiente de pago" o "Mora".
-* **Garantía de Éxito:** El estado de la factura se actualiza a "Pagada", se liquida el saldo deudor del cliente y se emite el recibo/comprobante de cobro.
-* **Garantía Mínima:** Si el cobro es rechazado, la pasarela notifica el fallo, la factura permanece en "Mora/Pendiente"y se registra el intento fallido en el historial.
-
+  * Existe una factura en estado "Pendiente de pago" o "Mora".
+* **Garantía de Éxito:** La factura pasa a "Pagada", se descuenta del saldo del cliente y se emite el comprobante de cobro.
+* **Garantía Mínima:** Si el cobro es rechazado, la factura permanece en "Pendiente/Mora" y se registra el intento fallido. Un mismo pago nunca se aplica dos veces.
+  
 #### Flujos de Eventos
-**Disparador:** Evento webhook recibido desde Stripe (Pago realizado / Pago pendiente) o registro manual de cobro por parte del usuario operativo.
-
-**Escenario Principal de Éxito (Automático vía Stripe):**
-1. El cliente efectúa el pago mediante el enlace provisto por Stripe.
-2. Stripe procesa la transacción con éxito y envía la notificación webhook al sistema.
-3. El sistema valida la firma de seguridad del webhook y localiza la factura correspondiente.
-4. El sistema cambia el estado de la factura a "Pagada" y descuenta el importe de la deuda del cliente.
-5. Si el cliente no registra deudas restantes y tenía trámite de baja retenido (`CU-02`), el sistema desbloquea la baja definitiva.
-
+**Disparador:** Evento webhook de Stripe o registro manual del cobro por parte del usuario operativo.
+ 
+**Escenario Principal de Éxito (automático vía Stripe):**
+1. El cliente paga mediante el enlace de Stripe.
+2. Stripe procesa la transacción y envía el webhook al sistema.
+3. El sistema valida la firma del webhook y localiza la factura correspondiente.
+4. El sistema comprueba que el evento no esté duplicado y que el importe coincida con el pendiente.
+5. El sistema cambia el estado de la factura a "Pagada", descuenta el importe de la deuda del cliente y cancela sus recordatorios.
+6. Si el cliente estaba en "Baja con deuda" y ya no tiene deuda, el sistema lo pasa a "Baja" y notifica al Usuario responsable.
+   
 **Extensiones (Flujos Alternativos):**
+* **1a. Registro manual de un cobro (transferencia, efectivo u otro medio):**
+  * 1a1. El usuario selecciona la factura e indica importe, fecha, medio y referencia.
+  * 1a2. El sistema continúa en el paso 4.
 * **2a. Pago fallido o rechazado por la pasarela:**
-  * 2a1. Stripe notifica evento de fallo (`payment_intent.payment_failed`).
-  * 2a2. El sistema marca el intento como fallido y desencadena el envío de aviso de pago rechazado (`CU-05`).
-
+  * 2a1. Stripe notifica el fallo.
+  * 2a2. El sistema marca el intento como fallido y envía el aviso de pago rechazado.
+* **3a. Firma del webhook no válida:**
+  * 3a1. El sistema descarta el evento y lo registra como incidencia de seguridad.
+* **4a. Evento de pago duplicado:**
+  * 4a1. El sistema no vuelve a aplicar el pago, lo registra y notifica al responsable.
+* **4b. Importe inferior al pendiente:**
+  * 4b1. El sistema registra el pago, deja la factura en "Parcial" con el saldo restante y notifica al responsable.
+* **4c. Importe superior al pendiente:**
+  * 4c1. El sistema registra el pago, marca la diferencia como incidencia y notifica al responsable para su revisión.
+* **Pausar recordatorios por disputa:**
+  * 1. El usuario selecciona una factura que el cliente está disputando y elige "Pausar recordatorios".
+  * 2. El usuario indica el motivo y la fecha de revisión.
+  * 3. El sistema marca la factura "En disputa", deja de enviar recordatorios y lo registra en el historial.
+  * 4. El usuario puede reanudar los recordatorios en cualquier momento.
 </details>
 
 ---

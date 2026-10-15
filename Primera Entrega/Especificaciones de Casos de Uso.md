@@ -103,89 +103,102 @@
 
 <details>
 <summary><b>CU-03: Generar Facturas Recurrentes Automáticas</b></summary>
-
-### CU-03: Generar Facturas Recurrentes Automáticas y Prorrrateo
-
+ 
+### CU-03: Generar Facturas Recurrentes Automáticas y Prorrateo
+ 
 * **ID / Código:** `CU-03`
-* **Nombre del Caso de Uso:** Generar facturas recurrentes automático el día 1 con prorrateo
-* **Descripción:** Procesar de forma automática al inicio de cada mes (día 1) la emisión de **exactamente una factura mensual** por cada cliente con suscripción activa, sin importar cuántas facturas anteriores permanezcan impagas (mientras el cliente no esté dado de baja). Además, al cumplirse un año desde la primera factura del cliente, el sistema evalúa si corresponde un cambio de plan o tarifa y aplica el **prorrateo** correspondiente sobre la nueva factura.
-* * **Actor Principal:** Sistema (proceso programado) / Administrador.
-* **Actores Secundarios:** Servicio de email / WhatsApp (`<<sistema externo>>`).
+* **Nombre del Caso de Uso:** Generar facturas recurrentes automáticas el día 1 con prorrateo
+* **Descripción:** Procesar de forma automática al inicio de cada mes (día 1) la emisión de exactamente una factura mensual por cada cliente con suscripción activa, sin importar cuántas facturas anteriores permanezcan impagas. Si el cliente se dio de alta a mitad del mes anterior, la primera factura aplica el **prorrateo** (descuento proporcional a los días no disfrutados).
+* **Actor Principal:** Sistema (proceso programado) / Administrador (ejecución manual).
+* **Actores Secundarios:** Servicio de email / WhatsApp (Sistema externo).
 * **Ámbito (Scope):** Módulo de Facturación Automática.
 * **Nivel (Level):** Subfunción / Objetivo de sistema.
-
+* **Requisitos relacionados:** BR1, FR6, FR6.1, FR5.1, FR21, NFR5, NFR6, NFR12.
+  
 #### Interesados e Intereses
-* **Empresa:** Garantizar la emisión de una factura mensual por cliente activo y asegurar la actualización de tarifas/planes al cumplir el ciclo anual con su prorrateo correspondiente.
-* **Cliente:** Recibir mensualmente su factura y ver reflejados de forma clara los ajustes proporcionales en caso de cambio de tarifa al cumplirse el año.
-
+* **Empresa:** Garantizar la emisión de una factura mensual por cliente activo sin intervención manual.
+* **Cliente:** Recibir mensualmente su factura y ver reflejado claramente el ajuste proporcional si se dio de alta a mitad de mes.
+  
 #### Condiciones y Garantías
-* **Precondiciones:** El cliente debe tener una suscripción activa (no estar dado de baja).
-* **Garantía de Éxito:** Se emite la factura mensual de cada cliente activo, aplicando el recálculo y prorrateo anual si corresponde, y se notifica al cliente
-* **Garantía Mínima:** Si la generación o emisión de la factura de un cliente específico falla, el sistema registra la incidencia, notifica instantaneamente al administrador o usuario responsable del cliente, pero no se detiene el procesamiento general, permitiendo que el sistema continúe emitiendo las facturas del resto de los clientes activos sin interrupciones.
+* **Precondiciones:** El cliente debe tener una suscripción activa (ni dada de baja ni pausada en el periodo).
+* **Garantía de Éxito:** Se emite la factura mensual de cada cliente activo, aplicando el prorrateo si corresponde, y se notifica al cliente.
+* **Garantía Mínima:** Si la generación de la factura de un cliente falla, el sistema registra la incidencia, notifica al responsable del cliente y continúa con el resto de clientes sin interrupciones. Nunca se emiten dos facturas recurrentes del mismo periodo para el mismo cliente.
 
 #### Flujos de Eventos
-**Disparador:** Llega el día 1 de cada mes a las 00:00 h o ejecución manual por parte del Adminidtrador.
-  
+**Disparador:** Llega el día 1 de cada mes a las 8:00 h o el Administrador lanza la ejecución manual.
+ 
 **Escenario Principal de Éxito:**
-1. El sistema identifica a todos los clientes que mantienen su suscripción activa para el periodo (independientemente de si registran deudas o facturas impagas anteriores).
-2. El sistema verifica si el cliente cumple **1 año desde la emisión de su primera factura**.
-  * Si cumple el año: El sistema evalúa el cambio de plan/tarifa y calcula el **prorrateo proporcional** correspondiente para la nueva factura.
-  * Si no cumple el año: El sistema aplica el cobro de la tarifa habitual contratada.
-3. El sistema genera la factura del mes en curso y actualiza el saldo total deudor del cliente.
-4. El sistema ejecuta el caso de uso `<<include>>` **Enviar facturas y recordatorios**.
-5. El Servicio externo de Email/WhatsApp envía la nueva factura emitida al cliente.
+1. El sistema identifica a todos los clientes con suscripción activa para el periodo (independientemente de si tienen facturas impagas anteriores).
+2. Para cada cliente, el sistema comprueba que no exista ya una factura recurrente del mismo periodo (Por si se realizó una manualmente)
+3. El sistema calcula el importe con la tarifa vigente aprobada, aplicando descuentos e impuestos con la regla de redondeo fija.
+4. El sistema genera la factura del mes, le asigna numeración oficial, conserva el PDF emitido y actualiza el saldo deudor del cliente.
+5. El sistema ejecuta el caso de uso `<<include>>` Enviar facturas y recordatorios.
+6. El sistema registra en el log de procesos automáticos el resultado de la ejecución (facturas emitidas, fallidas) y avisa al terminar.
 
 **Extensiones (Flujos Alternativos):**
 * **1a. El cliente acumula facturas de meses anteriores impagas:**
-  * 1a1. El sistema continúa emitiendo la nueva factura individual del mes actual.
+  * 1a1. El sistema emite igualmente la factura del mes actual.
   * 1a2. El sistema suma el nuevo importe al saldo total adeudado por el cliente.
-  * 1a3. El sistema intensifica el envío de recordatorios de cobro por la deuda acumulada.
-* **2a. Detección de cambio de rango/tarifa en la revisión anual (`<<extend>>` Reorganizar/Revisar facturación anual):**
-  * 2a1. El sistema detecta que el ajuste anual implica un cambio de tramo o valor de tarifa.
-  * 2a2. El sistema aplica el cálculo prorrateo y notifica al Administrador sobre el ajuste realizado.
+* **2a. Ya existe la factura del periodo (por ejemplo, ejecución manual repetida):**
+  * 2a1. El sistema omite al cliente y lo registra en el log.
+* **3a. Alta a mitad de mes (prorrateo):**
+  * 3a1. El sistema detecta que la fecha de inicio de la suscripción es posterior al día 1 del periodo anterior.
+  * 3a2. El sistema calcula el importe proporcional a los días de servicio y lo refleja como línea de ajuste en la factura.
+* **3b. El cliente cumple un año desde su primera factura:**
+  * 3b1. El sistema factura con la tarifa vigente (sin cambiarla automáticamente).
+  * 3b2. El sistema calcula el ajuste de tarifa y notifica al Administrador para que apruebe el cambio.
+* **4a. Fallo al generar la factura de un cliente:**
+  * 4a1. El sistema registra el error, notifica al responsable y continúa con el siguiente cliente.
 </details>
 
 ---
 
 <details>
 <summary><b>CU-04: Gestionar Facturas Puntuales</b></summary>
-
-### CU-04: Gestionar Facturas Puntuales
-
+ 
+### CU-04: Gestionar Facturas Puntuales (borrador, vista previa, PDF)
+ 
 * **ID / Código:** `CU-04`
-* **Nombre del Caso de Uso:** Gestionar facturas puntuales (vista previa, PDF, emisión)
-* **Descripción:** Permite a los usuarios administrativos crear y emitir cobros/facturas únicas bajo demanda para un cliente (por servicios extraordinarios o ventas aisladas no recurrentes).Aunque no son automáticas ni repetitivas, estas facturas se programan/emiten para efectuarse a principio del mes (día 1), consolidándose con el ciclo mensual de cobros. 
-* **Actores Secundarios:** Servicio de email / WhatsApp (`<<sistema externo>>`).
+* **Nombre del Caso de Uso:** Gestionar facturas puntuales (borrador, vista previa, PDF, emisión)
+* **Descripción:** Permite a los usuarios crear, editar en borrador y emitir facturas únicas para un cliente (servicios puntuales o ventas aisladas no recurrentes). Una vez aprobadas, se emiten a principio de mes (día 1), consolidándose con el ciclo mensual de cobros.
+* **Actor Principal:** Usuario operativo.
+* **Actores Secundarios:** Servicio de email / WhatsApp (Sistema externo).
 * **Ámbito (Scope):** Módulo de Facturación Puntual.
 * **Nivel (Level):** Objetivo de usuario.
-
+* **Requisitos relacionados:** UR3, FR7, FR8, FR8.1, FR8.2, FR8.3, FR12.1, NFR12.
+  
 #### Interesados e Intereses
 * **Empresa:** Disponer de un mecanismo flexible para facturar conceptos únicos sin alterar el ciclo de suscripción recurrente del cliente.
-* **Cliente:** Recibir el comprobante detallado de los servicios puntuales contratados con su correspondiente enlace de pago.
-
-#### ⚙️ Condiciones y Garantías
+* **Cliente:** Recibir el comprobante detallado de los servicios puntuales con su enlace de pago.
+  
+#### Condiciones y Garantías
 * **Precondiciones:**
-  * El usuario operativo debe estar autenticado (`CU-01`).
-  * El cliente receptor debe existir registrado en la base de datos y estar como no recurrente.
-* **Garantía de Éxito:** La factura puntual es emitida, guardada en la base de datos en estado "Pendiente de pago", sumada al historial/informes del cliente (`CU-06`) y enviada al cliente (`CU-05`).
-* **Garantía Mínima:** Si la generación de la factura falla antes de la emisión, el sistema no actualiza los saldos ni dispara notificaciones al cliente, sino que avisa al Administrador.
-
-#### 🔄 Flujos de Eventos
-**Disparador:** El usuario selecciona un cliente y configura la generación de facturas como no recurrente (Factura puntual a principio de mes)
-
+  * El usuario operativo debe estar autenticado.
+  * El cliente receptor debe existir en la base de datos.
+* **Garantía de Éxito:** La factura puntual es emitida, guardada en estado "Pendiente de pago" con su PDF original, sumada al historial e informes del cliente y enviada al cliente.
+* **Garantía Mínima:** Si la generación falla antes de la emisión, el sistema no actualiza los saldos ni notifica al cliente, y avisa al Administrador. Una factura emitida no puede editarse.
+  
+#### Flujos de Eventos
+**Disparador:** El usuario selecciona un cliente y elige crear una factura puntual.
+ 
 **Escenario Principal de Éxito:**
-1. El usuario selecciona el cliente e ingresa los conceptos, importes, fecha de facturación y fecha de vencimiento del cobro puntual.
-2. El sistema genera una **vista previa** del comprobante en formato PDF/pantalla.
-3. El usuario confirma la aprobación y a principio de mes se genera la factura automaticamente.
-4. Llegado el día de facturación, el sistema asigna la numeración oficial, establece el estado "Pendiente de pago" y actualiza los saldos deudores del cliente.
-5. El sistema ejecuta el caso de uso `<<include>>` `CU-05` Enviar facturas y recordatorios.
-6. El servicio externo notifica al cliente adjuntando la factura puntual y el enlace de pago.
-
+1. El usuario selecciona el cliente e ingresa las líneas (concepto, cantidad, precio unitario, descuento e impuesto), la fecha de facturación y la fecha de vencimiento.
+2. El sistema calcula los totales y guarda la factura en estado "Borrador".
+3. El sistema genera una vista previa del comprobante con la identidad corporativa.
+4. El usuario confirma la factura.
+5. Llegado el día de facturación, el sistema asigna la numeración oficial, genera y conserva el PDF, establece el estado "Pendiente de pago" y actualiza el saldo del cliente.
+6. El sistema ejecuta el caso de uso `<<include>>` Enviar facturas y recordatorios.
+   
 **Extensiones (Flujos Alternativos):**
-* **3a. Cancelación del proceso previo a la emisión:**
-  * 3a1. El usuario decide cancelar el formulario antes de confirmar la emisión.
-  * 3a2. El sistema descuarta los datos ingresados sin guardar ningún registro ni alterar la contabilidad del cliente.
-
+* **2a. Edición del borrador:**
+  * 2a1. El usuario reabre un borrador existente, modifica las líneas y guarda; el sistema recalcula los totales.
+  * 2a2. Si otro usuario guardó el borrador entretanto, el sistema rechaza el guardado y avisa del conflicto.
+* **4a. El importe supera el umbral configurado (`<<extend>>` Solicitar aprobación):**
+  * 4a1. El sistema envía la factura a la bandeja de aprobaciones y la deja en estado "Pendiente de aprobación".
+  * 4a2. Si se aprueba, continúa en el paso 5; si se rechaza, vuelve a "Borrador" con el motivo del rechazo.
+* **4b. Cancelación del proceso previo a la emisión:**
+  * 4b1. El usuario decide descartar el borrador.
+  * 4b2. El sistema elimina el borrador sin alterar la contabilidad del cliente.
 </details>
 
 ---

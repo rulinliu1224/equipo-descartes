@@ -404,3 +404,53 @@
 </details>
 
 ---
+
+<details>
+<summary><b>CU-09: Gestionar Clientes</b></summary>
+ 
+### CU-09: Gestionar Clientes (alta, reactivación)
+ 
+* **ID / Código:** `CU-09`
+* **Nombre del Caso de Uso:** Gestionar clientes
+* **Descripción:** Permite dar de alta, modificar, dar de baja y reactivar clientes, con sus datos comerciales y fiscales separados y varios contactos por empresa.
+* **Actor Principal:** Usuario operativo.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Clientes.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** BR3, BR4, UR2, FR4, FR4.1, FR18, NFR1, NFR7, NFR16.
+  
+#### Interesados e Intereses
+* **Usuario operativo:** Dar de alta un cliente de forma rápida y sin errores.
+* **Empresa:** Tener los datos fiscales correctos para facturar y un registro de los cambios de cada cliente.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El usuario debe estar autenticado y tener permiso de crear clientes.
+* **Garantía de Éxito:** El cliente queda registrado o actualizado con sus contactos, y el cambio queda en su historial.
+* **Garantía Mínima:** No se guarda un cliente con datos fiscales obligatorios incompletos ni duplicado. Al dar de baja un cliente, sus facturas y PDFs siguen accesibles.
+
+#### Flujos de Eventos
+**Disparador:** El usuario selecciona para crear un nuevo cliente o abre la ficha de un cliente existente.
+ 
+**Escenario Principal de Éxito (alta):**
+1. El usuario introduce los datos comerciales (nombre, sector, ubicación, responsable interno).
+2. El usuario introduce los datos fiscales (razón social, NIF/CIF, dirección fiscal, régimen de impuestos).
+3. El usuario añade uno o varios contactos (nombre, cargo, email, teléfono, canal preferido, estado).
+4. El sistema valida los datos obligatorios y comprueba que el NIF/CIF no esté ya registrado.
+5. El sistema guarda el cliente, lo asigna al responsable y lo registra en el historial.
+6. El sistema ofrece configurar la suscripción del cliente.
+   
+**Extensiones (Flujos Alternativos):**
+* **4a. Datos obligatorios incompletos o inválidos:**
+  * 4a1. El sistema marca los campos erróneos y no guarda hasta que se corrijan.
+* **4b. Cliente duplicado:**
+  * 4b1. El sistema avisa de que ya existe un cliente con ese NIF/CIF y ofrece abrir su ficha (o reactivarlo si está dado de baja).
+* **Modificación de un cliente:**
+  * El usuario edita los datos y guarda.
+  * Si otro usuario guardó el mismo cliente entretanto, el sistema rechaza el guardado con aviso de conflicto.
+* **Reactivación de un cliente dado de baja:**
+  * El usuario selecciona un cliente en estado "Baja" y elige "Reactivar".
+  * El sistema cambia el estado a "Activo", conserva su historial previo y ofrece configurar una nueva suscripción.
+    
+</details>
+
+---

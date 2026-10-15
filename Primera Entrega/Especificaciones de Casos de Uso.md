@@ -253,52 +253,48 @@
 ---
 
 <details>
-<summary><b>CU-06: Generar Informes y Reportes Financieros</b></summary>
-
-### CU-06: Generar Informes y Reportes Financieros
-
+<summary><b>CU-06: Consultar Informes y Exportar</b></summary>
+ 
+### CU-06: Consultar Informes y Exportar
+ 
 * **ID / Código:** `CU-06`
-* **Nombre del Caso de Uso:** Generar informes y reportes financieros
-* **Descripción:** Permite a los administradores consultar y exportar métricas, reportes de facturación e informes de morosidad consolidando en una única fuente de datos tanto los ingresos/deudas procedentes de la **facturación recurrente** (`CU-03`) como de la **facturación puntual** (`CU-04`).
-* **Actor Principal:** Administrador.
-* **Actores Secundarios:** Ninguno.
-* **Ámbito (Scope):** Módulo de Reportes e Inteligencia de Negocio.
+* **Nombre del Caso de Uso:** Consultar informes y exportar
+* **Descripción:** Permite consultar y exportar informes configurables de facturación, cobros y deudas, consolidando en una única fuente de datos la facturación recurrente y la facturación puntual.
+* **Actor Principal:** Usuario operativo con permiso de informes
+* **Actores Secundarios:** Servicio de email (Sistema externo), si es necesario el envió de los mismos.
+* **Ámbito (Scope):** Módulo de Informes.
 * **Nivel (Level):** Objetivo de usuario.
-
+* **Requisitos relacionados:** BR7, UR9, FR14, FR14.2, NFR5, NFR12.
+  
 #### Interesados e Intereses
-* **Empresa / Administradores:** Disponer de una visión clara y unificada de balance de ingresos, proyección de cobros y cantidad pendiente a cobrar.
-
-####  Condiciones y Garantías
+* **Empresa / Administradores:** Disponer de una visión clara de lo facturado, cobrado, pendiente y vencido.
+  
+#### Condiciones y Garantías
 * **Precondiciones:**
-  * El Administrador debe estar autenticado con rol directivo/admin (`CU-01`).
-  * El Administrador debe tener los permisos para visualizar y crear informes o reportes.
-* **Garantía de Éxito:** El sistema consolida la información de ambas fuentes (recurrentes y puntuales) y muestra/exporta el reporte consolidado.
-* **Garantía Mínima:** Si no hay datos en el rango de fechas seleccionado, el sistema muestra la pantalla sin errores indicando "Sin registros".
+  * El usuario debe estar autenticado y tener permiso para consultar informes.
+* **Garantía de Éxito:** El sistema consolida ambas fuentes y muestra o exporta el informe.
+* **Garantía Mínima:** Si no hay datos en el rango seleccionado, el sistema muestra la pantalla sin errores indicando "Sin registros". El usuario solo ve datos de los clientes a los que tiene acceso. En el caso de administradores y el superadministrador pueden visualizar datos sobre toda la base de clientes.
 
 #### Flujos de Eventos
-**Disparador:** El Administrador accede a la sección 'informes y reportes' y selecciona los parámetros de búsqueda.
-
+**Disparador:** El usuario accede a la sección "Informes" y selecciona los parámetros.
+ 
 **Escenario Principal de Éxito:**
-1. El Administrador selecciona el tipo de informe deseado y el rango de fechas.
-2. El sistema consulta las bases de datos agregando las cifras de facturas recurrentes y puntuales.
-3. El sistema calcula los totales, saldos cobrados y saldos adeudados.
-4. El sistema presenta en pantalla los gráficos y tablas explicativas.
-5. El Administrador puede descargar el reporte en el formato deseado (PDF/Excel).
-
+1. El usuario selecciona el tipo de informe, el rango de fechas y los filtros.
+2. El sistema consulta las facturas recurrentes y puntuales y los pagos del periodo.
+3. El sistema calcula los totales facturados, cobrados, pendientes y vencidos.
+4. El sistema presenta en pantalla los gráficos y tablas.
+5. El usuario descarga el informe en CSV o PDF.
+   
 **Extensiones (Flujos Alternativos):**
-* **1a. Rango de fechas no válido o inconsistente:**
-  * 1a1. El Administrador ingresa una fecha de inicio posterior a la fecha de fin.
-  * 1a2. El sistema notifica que el rango es inválido y solicita la corrección de las fechas.
+* **1a. Rango de fechas no válido:**
+  * 1a1. El usuario ingresa una fecha de inicio posterior a la de fin.
+  * 1a2. El sistema indica que el rango es inválido y solicita corregirlo.
 * **2a. Inexistencia de datos para los filtros seleccionados:**
-  * 2a1. El sistema realiza la consulta y no halla registros en el periodo indicado.
-  * 2a2. El sistema despliega la interfaz con saldos en cero ($0) y muestra el mensaje *"Sin registros para los criterios seleccionados"*.
-* **4a. Exceso en el volumen de datos para la vista en pantalla:**
-  * 4a1. La consulta abarca un volumen masivo de datos que ralentiza la visualización web.
-  * 4a2. El sistema procesa el reporte de forma asíncrona y envía el archivo generado al correo del Administrador.
-* **5a. Error durante la exportación del documento:**
-  * 5a1. Se produce una falla al compilar el archivo PDF o Excel.
-  * 5a2. El sistema muestra una alerta de error de descarga y permite reintentar el proceso.
-
+  * 2a1. El sistema muestra saldos en cero y el mensaje "Sin registros para los criterios seleccionados".
+* **4a. Volumen de datos excesivo:**
+  * 4a1. El sistema procesa el informe en segundo plano y avisa al usuario (y envía el archivo a su correo) al terminar.
+* **5a. Error durante la exportación:**
+  * 5a1. El sistema muestra una alerta de error y permite reintentar.
 </details>
 
 ---

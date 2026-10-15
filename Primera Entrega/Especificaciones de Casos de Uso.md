@@ -2,40 +2,47 @@
 
 <details>
 <summary><b>CU-01: Iniciar Sesión</b></summary>
-
+ 
 ### CU-01: Iniciar Sesión
+
 * **ID / Código:** `CU-01`
 * **Nombre del Caso de Uso:** Iniciar sesión
 * **Descripción:** El usuario accede al sistema de facturación autenticándose con sus credenciales corporativas (@turbineh.com).
-* **Actor Principal:** Usuario (por herencia: Administrador, Superadministrador).
+* **Actor Principal:** Usuario operativo (por herencia: Administrador, Superadministrador).
+* **Actores Secundarios:** Servicio de email (sistema externo), para la recuperación de contraseña.
 * **Ámbito (Scope):** Sistema de Facturación.
 * **Nivel (Level):** Objetivo de usuario.
-
+* **Requisitos relacionados:** UR1, FR1, FR1.1, NFR8, NFR9, NFR10.
+  
 #### Interesados e Intereses
 * **Usuario operativo:** Acceder a las funciones del sistema según sus permisos.
 * **Empresa:** Garantizar que solo el personal autorizado con correo corporativo ingrese al sistema.
-
+  
 #### Condiciones y Garantías
-* **Precondiciones:** El usuario debe estar previamente registrado en el sistema.
+* **Precondiciones:** El usuario debe estar previamente dado de alta en el sistema por un Administrador, no existe el sign-up.
 * **Garantía de Éxito:** El usuario inicia sesión correctamente y el sistema carga el dashboard adaptado a sus permisos.
 * **Garantía Mínima:** El intento fallido queda registrado en el historial y se deniega el acceso.
-
+  
 #### Flujos de Eventos
 **Disparador:** El usuario ingresa a la URL del sistema e introduce sus credenciales.
-
+ 
 **Escenario Principal de Éxito:**
 1. El usuario ingresa su correo corporativo y contraseña.
 2. El sistema valida el formato del correo (@turbineh.com).
-3. El sistema comprueba la existencia de la cuenta y la validez de la contraseña.
-4. El sistema carga el rol y los permisos del usuario.
+3. El sistema comprueba la existencia de la cuenta, que esté activa y la validez de la contraseña.
+4. El sistema carga el rol, los clientes asignados y los permisos del usuario.
 5. El sistema redirige al usuario a la pantalla principal.
-
+   
 **Extensiones (Flujos Alternativos):**
-* 2a. **Dominio de correo no corporativo:** El sistema notifica que solo se admiten solo cuentas @turbineh.com y finaliza la operación.
-* 3a. **Credenciales incorrectas:** El sistema muestra un mensaje de error y permite reintentar.
-* 3b. **El usuario no recuerda su contraseña (`<<extend>>` Recuperar contraseña):**
-  * 3b1. El usuario selecciona "Recuperar contraseña".
-  * 3b2. El sistema envía un enlace de restablecimiento al correo corporativo.
+* 2a. **Dominio de correo no corporativo:** El sistema notifica que solo se admiten cuentas @turbineh.com y finaliza la operación.
+* 3a. **Credenciales incorrectas:** El sistema muestra un mensaje de error genérico y permite reintentar.
+* 3b. **Cuenta desactivada:** El sistema deniega el acceso e indica que contacte con un Administrador.
+* 3c. **El usuario no recuerda su contraseña (`<<extend>>` Recuperar contraseña):**
+  * 3c1. El usuario selecciona "Recuperar contraseña".
+  * 3c2. El sistema envía al correo corporativo un enlace de restablecimiento con caducidad.
+  * 3c3. El usuario abre el enlace dentro del plazo y define una nueva contraseña.
+  * 3c4. Si el enlace ha caducado, el sistema lo invalida y permite solicitar uno nuevo.
+ * **Inactividad prolongada:** En cualquier momento posterior al inicio de sesión, si el usuario supera el tiempo de inactividad configurado, el sistema cierra la sesión automáticamente.
 </details>
 
 ---

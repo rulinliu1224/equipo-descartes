@@ -454,3 +454,355 @@
 </details>
 
 ---
+
+<details>
+<summary><b>CU-10: Importar Clientes desde CSV</b></summary>
+ 
+### CU-10: Importar Clientes desde CSV
+ 
+* **ID / Código:** `CU-10`
+* **Nombre del Caso de Uso:** Importar clientes desde CSV
+* **Descripción:** Permite cargar de forma masiva clientes desde un fichero CSV, con previsualización previa y un resumen de los clientes creados, actualizados y rechazados.
+* **Actor Principal:** Usuario operativo con permiso de importación.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Clientes.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** BR4, FR4.2, NFR5, NFR6.
+  
+#### Interesados e Intereses
+* **Usuario operativo:** Dar de alta muchos clientes sin hacerlo uno a uno.
+* **Empresa:** Evitar que una importación introduzca datos erróneos o duplicados.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El usuario debe estar autenticado y tener permiso de importación.
+* **Garantía de Éxito:** Los registros válidos se crean o actualizan y el usuario recibe el resumen de la importación.
+* **Garantía Mínima:** Las filas erróneas se rechazan sin impedir la importación del resto; si el usuario cancela tras la previsualización, no se guarda nada.
+  
+#### Flujos de Eventos
+**Disparador:** El usuario selecciona la opcíon de importar clientes y sube un fichero CSV.
+ 
+**Escenario Principal de Éxito:**
+1. El usuario sube el fichero CSV.
+2. El sistema valida el formato y las columnas obligatorias.
+3. El sistema muestra una previsualización indicando, por fila, si se creará, actualizará (por coincidencia de NIF/CIF) o rechazará, y el motivo.
+4. El usuario confirma la importación.
+5. El sistema procesa el fichero en segundo plano mientras el usuario sigue trabajando.
+6. Al terminar, el sistema notifica al usuario con el resumen de creados, actualizados y rechazados, y registra los cambios en el historial de cada cliente.
+   
+**Extensiones (Flujos Alternativos):**
+* **2a. Formato no válido o columnas obligatorias ausentes:**
+  * 2a1. El sistema rechaza el fichero e indica qué columnas faltan.
+* **4a. El usuario cancela tras la previsualización:**
+  * 4a1. El sistema descarta el fichero sin guardar ningún dato.
+* **5a. Error al procesar una fila:**
+  * 5a1. El sistema la marca como rechazada y continúa con el resto.
+  * 5a2. Cuando finaliza el sistema notifica sobre las filas rechazadas.
+* **6a. El usuario quiere revisar los rechazados:**
+  * 6a1. El sistema permite descargar un CSV con las filas rechazadas y su motivo.
+  
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-11: Buscar y Consultar</b></summary>
+ 
+### CU-11: Buscar y Consultar (filtros, historial, pendientes, avisos)
+ 
+* **ID / Código:** `CU-11`
+* **Nombre del Caso de Uso:** Buscar y consultar
+* **Descripción:** Permite buscar globalmente clientes, facturas y pagos aplicando filtros, consultar el historial de cada cliente, ver el trabajo pendiente del usuario y sus notificaciones internas.
+* **Actor Principal:** Usuario operativo.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Sistema de Facturación.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** BR4, BR6, UR6, UR7, FR13, FR13.1, FR15, FR16, FR18, NFR4.
+  
+#### Interesados e Intereses
+* **Usuario operativo:** Encontrar rápidamente un cliente o factura y saber qué tiene pendiente.
+* **Cliente:** Que la empresa pueda responder con su historial si lo solicita.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El usuario debe estar autenticado.
+* **Garantía de Éxito:** El sistema muestra los resultados, el historial o las tareas pendientes solicitadas.
+* **Garantía Mínima:** El usuario solo obtiene resultados de los clientes a los que tiene acceso; si no hay coincidencias, se indica "Sin resultados".
+  
+#### Flujos de Eventos
+**Disparador:** El usuario escribe en la barra de búsqueda global o accede a su bandeja de pendientes.
+ 
+**Escenario Principal de Éxito (búsqueda):**
+1. El usuario introduce un texto (nombre, NIF/CIF, número de factura, email…).
+2. El usuario aplica filtros opcionales (cliente, ubicación, sector, estado de factura, recurrente/puntual, fecha, responsable).
+3. El sistema devuelve los resultados agrupados por tipo (clientes, facturas, pagos).
+4. El usuario abre un resultado y el sistema muestra su ficha con el historial de acciones realizadas sobre el cliente.
+   
+**Extensiones (Flujos Alternativos):**
+* **3a. Sin resultados:**
+  * 3a1. El sistema indica "Sin resultados" y sugiere quitar filtros.
+* **Consultar trabajo pendiente:**
+  *  El usuario abre su panel de pendientes.
+  *  El sistema muestra las tareas del usuario (facturas en mora, disputas por revisar, aprobaciones solicitadas, incidencias abiertas) de sus clientes asignados.
+* **Consultar notificaciones:**
+  * El usuario abre sus notificaciones.
+  * El sistema las muestra ordenadas por prioridad y estado; el usuario puede marcarlas como leídas o resueltas.
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-12: Gestionar Incidencias</b></summary>
+ 
+### CU-12: Gestionar Incidencias
+ 
+* **ID / Código:** `CU-12`
+* **Nombre del Caso de Uso:** Gestionar incidencias
+* **Descripción:** Permite abrir, actualizar y cerrar incidencias o tickets de facturación asociados a un cliente (y opcionalmente a una factura), para hacer seguimiento hasta su resolución.
+* **Actor Principal:** Usuario operativo.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Sistema de Facturación.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** UR8, FR16, FR17, FR18.
+  
+#### Interesados e Intereses
+* **Cliente:** Que su reclamación se resuelva y quede constancia.
+* **Empresa:** Seguir los problemas de facturación y no perder ninguno.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El usuario debe estar autenticado y el cliente debe existir.
+* **Garantía de Éxito:** La incidencia queda registrada con su estado, responsable y comentarios, vinculada al cliente.
+* **Garantía Mínima:** No se puede cerrar una incidencia sin indicar la resolución.
+  
+#### Flujos de Eventos
+**Disparador:** El usuario crea una nueva incidencia desde la ficha de un cliente o de una factura.
+ 
+**Escenario Principal de Éxito:**
+1. El usuario indica el título, la descripción, la prioridad y, si es sobre una factura, la factura afectada.
+2. El sistema crea la incidencia en estado "Abierta", asigna como responsable al Usuario responsable del cliente y le notifica.
+3. El responsable añade comentarios y cambia el estado a "En curso".
+4. El responsable resuelve la incidencia, indica la resolución y la pasa a "Cerrada".
+5. El sistema registra todo el seguimiento en el historial del cliente.
+**Extensiones (Flujos Alternativos):**
+* **1a. La incidencia es una disputa de una factura:**
+  * 1a1. El sistema ofrece pausar los recordatorios de esa factura.
+* **3a. Reasignación:**
+  * 3a1. El responsable reasigna la incidencia a otro usuario; el sistema notifica al nuevo responsable.
+  * 3a2. Si ya es un problema del sistema se le asigna a un Administrador y si este no puede resolverlo lo asigna al Superadministrador.
+* **4a. Reapertura:**
+  * 4a1. Si el problema persiste, el usuario reabre la incidencia y vuelve a "Abierta".
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-13: Consultar Dashboard Financiero y Estado del Sistema</b></summary>
+ 
+### CU-13: Consultar Dashboard Financiero y Estado del Sistema
+ 
+* **ID / Código:** `CU-13`
+* **Nombre del Caso de Uso:** Consultar dashboard financiero y estado del sistema
+* **Descripción:** Muestra un panel con las cifras clave (facturado, cobrado, pendiente, vencido) y, para quien tenga permiso, el registro de los procesos automáticos y el estado del sistema.
+* **Actor Principal:** Usuario operativo con permiso.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Informes / Administración.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** BR7, UR9, UR13, FR14.1, FR14.2, FR21, FR21.1.
+  
+#### Interesados e Intereses
+* **Administradores:** Ver de un vistazo la situación financiera.
+* **Superadministrador:** Detectar a tiempo fallos de los procesos automáticos y de las integraciones.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El usuario debe estar autenticado y tener el permiso correspondiente.
+* **Garantía de Éxito:** El sistema muestra el dashboard actualizado y, en su caso, el estado de salud.
+* **Garantía Mínima:** Si un indicador no puede calcularse, se muestra como "No disponible" sin bloquear el resto del panel.
+* 
+#### Flujos de Eventos
+**Disparador:** El usuario accede al dashborad.
+ 
+**Escenario Principal de Éxito:**
+1. El usuario abre el dashboard y selecciona el periodo.
+2. El sistema calcula facturado, cobrado, pendiente y vencido para los clientes a los que el usuario tiene acceso.
+3. El sistema muestra los indicadores con gráficos de evolución.
+4. El usuario puede exportar el dashboard a CSV o PDF.
+
+**Extensiones (Flujos Alternativos):**
+* **Consultar estado del sistema (requiere permiso):**
+  * El usuario entra en la sección estado del sistema.
+  * El sistema muestra el estado de las integraciones (Stripe, email, WhatsApp), la última ejecución de cada proceso automático y sus errores.
+  * El usuario abre el log de un proceso para ver el detalle por cliente.
+* **4a. Error en la exportación:**
+  * 4a1. El sistema muestra una alerta y permite reintentar.
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-14: Revisar Facturación Anual</b></summary>
+ 
+### CU-14: Revisar Facturación Anual
+ 
+* **ID / Código:** `CU-14`
+* **Nombre del Caso de Uso:** Revisar facturación anual
+* **Descripción:** Al cumplirse un año desde la primera factura de un cliente, El sistema le avisa al Administrador para revisar su facturación y decide si mantener la tarifa o proponer un cambio de plan o rango. Ningún cambio de tarifa se aplica de forma automática.
+* **Actor Principal:** Administrador.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Suscripciones.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** BR5, FR5.1, FR5.2, FR12.
+  
+#### Interesados e Intereses
+* **Empresa:** Ajustar las tarifas a lo que realmente consume cada cliente.
+* **Cliente:** Que los cambios de tarifa estén justificados y controlados.
+
+#### Condiciones y Garantías
+* **Precondiciones:**
+  * El Administrador debe estar autenticado.
+  * El cliente tiene una suscripción activa con al menos un año desde su primera factura.
+* **Garantía de Éxito:** La revisión queda registrada con su resultado (tarifa mantenida o cambio propuesto).
+* **Garantía Mínima:** La tarifa vigente no cambia hasta que el cambio se aprueba en la bandeja de aprobaciones.
+
+#### Flujos de Eventos
+**Disparador:** El sistema notifica la revisión anual pendiente o el Administrador la inicia desde la ficha del cliente.
+ 
+**Escenario Principal de Éxito:**
+1. El Administrador abre la revisión anual del cliente.
+2. El sistema muestra el resumen de los últimos doce meses (facturado, cobrado, consumo y rango actual).
+3. El Administrador decide mantener la tarifa actual.
+4. El sistema registra la revisión como completada y programa la siguiente para dentro de un año.
+**Extensiones (Flujos Alternativos):**
+* **3a. Cambio de rango o tarifa (`<<extend>>` Solicitar aprobación) [cambia de rango]:**
+  * 3a1. El Administrador propone la nueva tarifa o plan y la fecha de aplicación.
+  * 3a2. El sistema envía la propuesta a la bandeja de aprobaciones.
+  * 3a3. Si se aprueba, la nueva tarifa se aplica en la siguiente facturación; si se rechaza, se mantiene la actual.
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-15: Solicitar Aprobación</b></summary>
+ 
+### CU-15: Solicitar Aprobación
+ 
+* **ID / Código:** `CU-15`
+* **Nombre del Caso de Uso:** Solicitar aprobación (`<<extend>>`)
+* **Descripción:** Envía a la bandeja de aprobaciones una operación sensible (cambio de tarifa o factura cuyo importe supera el umbral configurado) y la deja bloqueada hasta que se resuelva.
+* **Actor Principal:** Usuario operativo / Administrador (quien origina la operación).
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Aprobaciones.
+* **Nivel (Level):** Subfunción.
+* **Requisitos relacionados:** BR5, FR5.2, FR12, FR12.1, FR16.
+* **Puntos de extensión:** `CU-14` paso 3 [cambia de rango]; `CU-04` paso 4 [importe > umbral].
+  
+#### Interesados e Intereses
+* **Empresa:** Que las operaciones sensibles pasen por un segundo control.
+* **Solicitante:** Saber en qué estado está su solicitud.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** Se cumple la condición de extensión (cambio de rango o importe mayor que el umbral).
+* **Garantía de Éxito:** La solicitud queda en la bandeja con estado "Pendiente" y se notifica a los aprobadores.
+* **Garantía Mínima:** La operación no se aplica mientras la solicitud no esté aprobada.
+  
+#### Flujos de Eventos
+**Disparador:** Se alcanza alguno de los puntos de extensión.
+ 
+**Escenario Principal de Éxito:**
+1. El sistema crea la solicitud con el tipo de operación, el cliente, los valores actuales y propuestos y el solicitante.
+2. El sistema bloquea la operación en estado "Pendiente de aprobación".
+3. El sistema notifica a los Administradores con permiso de aprobación.
+4. El sistema muestra la solicitud en los pendientes del solicitante.
+**Extensiones (Flujos Alternativos):**
+* **1a. Ya existe una solicitud pendiente para la misma operación:**
+  * 1a1. El sistema no crea una nueva y avisa al solicitante.
+* **El solicitante retira la solicitud antes de resolverse:**
+  * El sistema la marca como "Retirada" y la operación vuelve a su estado anterior.
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-16: Aprobar o Rechazar Operaciones</b></summary>
+ 
+### CU-16: Aprobar o Rechazar Operaciones
+ 
+* **ID / Código:** `CU-16`
+* **Nombre del Caso de Uso:** Aprobar o rechazar operaciones
+* **Descripción:** El Administrador revisa las solicitudes de la bandeja de aprobaciones (cambios de tarifa, facturas por encima del umbral y otras operaciones sensibles) y las aprueba o rechaza.
+* **Actor Principal:** Administrador.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Aprobaciones.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** BR5, UR10, FR12, FR16, FR18.
+  
+#### Interesados e Intereses
+* **Empresa:** Controlar las operaciones sensibles.
+* **Solicitante:** Obtener una respuesta rápida y verificada.
+  
+#### Condiciones y Garantías
+* **Precondiciones:**
+  * El Administrador debe estar autenticado y tener permiso de aprobación.
+  * Existe al menos una solicitud pendiente.
+* **Garantía de Éxito:** La solicitud queda aprobada o rechazada, la operación se aplica o se descarta y se notifica al solicitante.
+* **Garantía Mínima:** Un usuario no puede aprobar su propia solicitud; toda decisión queda registrada con fecha, autor y motivo.
+  
+#### Flujos de Eventos
+**Disparador:** El Administrador abre la bandeja de aprobaciones.
+ 
+**Escenario Principal de Éxito:**
+1. El sistema muestra las solicitudes pendientes ordenadas por antigüedad.
+3. El Administrador abre una solicitud y revisa los valores actuales y propuestos.
+4. El Administrador la aprueba.
+5. El sistema aplica la operación (nueva tarifa desde la fecha indicada o liberación de la factura para su emisión).
+6. El sistema notifica al solicitante y registra la decisión en el historial del cliente.
+   
+**Extensiones (Flujos Alternativos):**
+* **3a. Rechazo:**
+  * 3a1. El Administrador rechaza la solicitud indicando un motivo obligatorio.
+  * 3a2. El sistema descarta la operación (la factura vuelve a "Borrador" o se mantiene la tarifa) y notifica al solicitante.
+* **3b. El Administrador es el propio solicitante:**
+  * 3b1. El sistema no permite la decisión e indica que debe resolverla otro Administrador.
+* **4a. Conflicto (la operación cambió desde que se solicitó):**
+  * 4a1. El sistema no aplica la aprobación y pide revisar la solicitud de nuevo.
+</details>
+
+---
+ 
+<details>
+<summary><b>CU-17: Configurar Parámetros del Sistema</b></summary>
+### CU-17: Configurar Parámetros del Sistema
+ 
+* **ID / Código:** `CU-17`
+* **Nombre del Caso de Uso:** Configurar parámetros del sistema
+* **Descripción:** Permite configurar los parámetros generales: plazos de vencimiento, calendario de recordatorios, impuestos, moneda, tarifas y planes, umbral de aprobación, tiempo de inactividad y plantillas de email/WhatsApp.
+* **Actor Principal:** Superadministrador.
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** Módulo de Configuración.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** UR11, FR11, FR12.1, FR20, NFR14, NFR17.
+  
+#### Interesados e Intereses
+* **Empresa:** Adaptar el sistema sin depender de cambios en el código.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El Superadministrador debe estar autenticado.
+* **Garantía de Éxito:** Los nuevos valores se guardan y se aplican a partir de ese momento.
+* **Garantía Mínima:** Los cambios no afectan a facturas ya emitidas; si un valor no es válido, se conserva el anterior.
+  
+#### Flujos de Eventos
+**Disparador:** El Superadministrador accede a su sección de configuración.
+ 
+**Escenario Principal de Éxito:**
+1. El sistema muestra los parámetros agrupados por sección (facturación, recordatorios, impuestos, moneda, tarifas, aprobaciones, plantillas).
+2. El Superadministrador modifica los valores de una sección.
+3. El sistema valida los datos.
+4. El sistema guarda la configuración, registra quién hizo el cambio y los valores anteriores.
+   
+**Extensiones (Flujos Alternativos):**
+* **3a. Valores no válidos (por ejemplo, impuesto negativo o plantilla con variables inexistentes):**
+  * 3a1. El sistema indica el error y no guarda la sección.
+* **2a. Edición de una plantilla de email/WhatsApp:**
+  * 2a1. El Superadministrador edita la plantilla en los idiomas seleccionados.
+  * 2a2. El sistema muestra una vista previa con datos de ejemplo antes de guardar.
+* **2b. Cambio de una tarifa de plan:**
+  * 2b1. El sistema aplica la nueva tarifa solo a las nuevas suscripciones; los clientes existentes conservan su tarifa acordada.
+</details>
+

@@ -205,41 +205,49 @@
 
 <details>
 <summary><b>CU-05: Enviar Facturas y Recordatorios de Pago</b></summary>
-
+ 
 ### CU-05: Enviar Facturas y Recordatorios de Pago
-
+ 
 * **ID / Código:** `CU-05`
-* **Nombre del Caso de Uso:** Enviar facturas y recordatorios de pago (`<<include>>`)
-* **Descripción:** Subfunción encargada de enviar las notificaciones de emisión de facturas (tanto recurrentes como puntuales) y gestionar los recordatorios automáticos periódicos de cobro cuando una factura entra en periodo de pago o permanece impaga.
-* **Actor Principal:** Sistema, proceso programado.
-* **Actores Secundarios:** Servicio de email / WhatsApp (`<<sistema externo>>`).
+* **Nombre del Caso de Uso:** Enviar facturas y recordatorios de pago 
+* **Descripción:** Subfunción encargada de enviar las facturas emitidas (recurrentes y puntuales) y de gestionar los recordatorios automáticos de cobro según el calendario configurado, mientras la factura esté pendiente o en mora.
+* **Actor Principal:** Sistema (proceso programado).
+* **Actores Secundarios:** Servicio de email / WhatsApp (Sistema externo), Stripe (Sistema Externo).
 * **Ámbito (Scope):** Módulo de Notificaciones.
 * **Nivel (Level):** Subfunción / Proceso reutilizable.
-
+* **Requisitos relacionados:** BR2, FR10, FR11, FR11.1, FR11.2, FR18, NFR19.
+  
 #### Interesados e Intereses
-* **Empresa:** Mantener una comunicación fluida de cobro y reducir envio de avisos manual mediante avisos automatizados.
-* **Cliente:** Recibir sus comprobantes a tiempo y recordar los vencimientos pendientes de pago.
-
+* **Empresa:** Reducir la deuda pendiente y los avisos manuales mediante recordatorios automáticos.
+* **Cliente:** Recibir sus comprobantes a tiempo y recordar los vencimientos pendientes.
+  
 #### Condiciones y Garantías
 * **Precondiciones:**
-  * Existencia de una factura emitida (recurrente `CU-03` o puntual `CU-04`) en estado "Pendiente de pago" o "Mora"(Pasado de fecha de pago).
-* **Garantía de Éxito:** Se envía la notificación o recordatorio correspondiente a través del canal configurado (Email/WhatsApp) y se registra el evento en el historial del cliente.
-* **Garantía Mínima:** Si falla el envío por un canal (ej. WhatsApp), el sistema intenta el envío por el canal alternativo (Email) y registra el resultado en la bitácora, si ninguna de las dos funciona notificar al ADministrador.
-
+  * Existe una factura emitida (recurrente o puntual) en estado "Pendiente de pago" o "Mora" (pasada la fecha de vencimiento).
+* **Garantía de Éxito:** Se envía la notificación o recordatorio por el canal configurado (Email/WhatsApp) y se registra el envío en el historial del cliente.
+* **Garantía Mínima:** Si falla el envío por un canal, el sistema intenta por el canal alternativo y registra el resultado; si fallan ambos, notifica al Usuario responsable del cliente.
+  
 #### Flujos de Eventos
-**Disparador:** Invocación directa por la emisión de una factura o ejecución del programa diario de revisión de deudas.
-
+**Disparador:** Emisión de una factura o ejecución del proceso diario de revisión de deudas.
+ 
 **Escenario Principal de Éxito:**
-1. El sistema recibe la orden de envío para una factura específica (por aviso de recordatorio programado).
-2. El sistema genera el enlace de pago directo de Stripe y adjunta la factura en PDF.
-3. El sistema envía el mensaje al cliente utilizando el Servicio externo de Email/WhatsApp.
-4. El sistema registra la fecha y hora del envío en e historial de notificaciones.
-
+1. El sistema recibe la orden de envío de una factura (emisión o recordatorio programado).
+2. El sistema comprueba el calendario de recordatorios aplicable (el general o el pactado con el cliente).
+3. El sistema genera el enlace de pago de Stripe y adjunta el PDF original de la factura.
+4. El sistema envía el mensaje al cliente usando la plantilla configurada a través del servicio de Email/WhatsApp.
+5. El sistema registra la fecha, hora y canal del envío en el historial de notificaciones.
+   
 **Extensiones (Flujos Alternativos):**
 * **1a. Recordatorio periódico por facturas en mora:**
-  * 1a1. El programa detecta facturas no pagadas que han superado la fecha de vencimiento.
-  * 1a2. El sistema intensifica los avisos según la frecuencia configurada (ej. cada 5 días) incluyendo el detalle de la deuda total.
-
+  * 1a1. El proceso diario detecta facturas no pagadas que superaron la fecha de vencimiento y las pasa a "Mora".
+  * 1a2. El sistema envía los avisos según la frecuencia configurada, incluyendo el detalle de la deuda total.
+* **2a. La factura tiene los recordatorios pausados por disputa:**
+  * 2a1. El sistema no envía el recordatorio y lo registra.
+  * 2a2. Al llegar la fecha de revisión de la disputa, el sistema notifica al responsable para que la resuelva o prorrogue.
+* **2b. La factura ya está pagada:**
+  * 2b1. El sistema cancela los recordatorios pendientes de esa factura.
+* **4a. Fallo del canal principal:**
+  * 4a1. El sistema reintenta por el canal alternativo; si también falla, notifica al responsable.
 </details>
 
 ---

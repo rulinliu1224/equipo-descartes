@@ -806,3 +806,50 @@
   * 2b1. El sistema aplica la nueva tarifa solo a las nuevas suscripciones; los clientes existentes conservan su tarifa acordada.
 </details>
 
+---
+
+<details>
+<summary><b>CU-18: Consultar Deuda y Notificar Baja (API)</b></summary>
+ 
+### CU-18: Consultar Deuda y Notificar Baja
+ 
+* **ID / Código:** `CU-18`
+* **Nombre del Caso de Uso:** Consultar deuda y notificar baja
+* **Descripción:** Un sistema externo autorizado consulta, a través de una API autenticada, clientes, facturas, pagos o deuda pendiente, y puede notificar la solicitud de baja de un cliente.
+* **Actor Principal:** Sistema externo (API) (Sistema externo).
+* **Actores Secundarios:** Ninguno.
+* **Ámbito (Scope):** API del Sistema de Facturación.
+* **Nivel (Level):** Objetivo de usuario.
+* **Requisitos relacionados:** UR14, FR19, FR19.1, FR5.3, NFR11, NFR18.
+  
+#### Interesados e Intereses
+* **Sistema externo:** Obtener información de facturación actualizada y comunicar bajas sin intervención manual.
+* **Empresa:** Que solo sistemas autorizados accedan a los datos y que toda baja quede controlada.
+  
+#### Condiciones y Garantías
+* **Precondiciones:** El sistema externo dispone de credenciales de API válidas con los permisos necesarios.
+* **Garantía de Éxito:** El sistema devuelve los datos solicitados o registra la solicitud de baja.
+* **Garantía Mínima:** Toda petición sin autenticar o sin permisos se rechaza en el servidor y queda registrada.
+* 
+#### Flujos de Eventos
+**Disparador:** El sistema externo realiza una petición a la API.
+ 
+**Escenario Principal de Éxito (consulta de deuda):**
+1. El sistema externo envía la petición con sus credenciales y el identificador del cliente.
+2. El sistema valida la autenticación y los permisos.
+3. El sistema obtiene las facturas pendientes y en mora del cliente y calcula la deuda total.
+4. El sistema devuelve la respuesta con el detalle de facturas y la deuda total.
+5. El sistema registra la petición en el log de la API.
+   
+**Extensiones (Flujos Alternativos):**
+* **1a. Notificación de solicitud de baja:**
+  * 1a1. El sistema externo envía la solicitud de baja del cliente con motivo y fecha.
+  * 1a2. El sistema registra la solicitud y notifica al responsable del cliente para que la tramite.
+  * 1a3. El sistema responde confirmando la recepción e indicando la deuda pendiente, si la hay.
+* **2a. Credenciales inválidas o sin permisos:**
+  * 2a1. El sistema rechaza la petición con un error de autorización.
+* **3a. Cliente inexistente:**
+  * 3a1. El sistema responde con un error de recurso no encontrado.
+* **Exceso de peticiones:**
+  * El sistema limita la frecuencia y responde con un error indicando cuándo reintentar.
+</details>

@@ -72,13 +72,13 @@ Para este segundo Sprint se estableció una planificación de trabajo orientada 
 - Tarea 1: Realización individual de la evaluación interna del equipo (método de las bolas).
 - Tarea 2: Puesta en común con la Product Owner de las valoraciones al resto de grupos para su envío.
 - Tarea 3: Elaboración individual por parte de cada Developer de una propuesta de Diagrama Entidad-Relación inicial (identificando entidades y relaciones, sin añadir métodos).
-- Tarea 3.2: Preparación individual de la justificación técnica de las entidades y relaciones elegidas para su discusión presencial.
-- Tarea 3.3: Sesión conjunta el próximo miércoles para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master.
+- Tarea 4: Preparación individual de la justificación técnica de las entidades y relaciones elegidas para su discusión presencial.
+- Tarea 5: Sesión conjunta el próximo miércoles para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master.
 - Tarea 6: Elaboración del Diagrama de Clases siguiendo la metodología de los anteriores con propuestas individuales y posterior puesta en común.
 - Tarea 7: Elaboración del Diagrama de Secuencia.
 - Tarea 8: Elaboración del Diagrama de Arquitectura/Componentes.
 - Tarea 9: Elaborar presentación PDF/PowerPoint para la exposición donde se incluyan los distintos diagramas y una breve explicación sobre ellos.
-- Tarea 7: Actualización de la Memoria de sesiones.
+- Tarea 10: Actualización de la Memoria de sesiones.
 
 ## Backlog Refinement (Sesión 2 - 28/10/2026)
 

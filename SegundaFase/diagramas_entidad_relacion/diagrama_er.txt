@@ -1,0 +1,195 @@
+@startuml
+title Diagrama de Entidad-Relación
+
+entity "USUARIO_OPERATIVO" as usuario_operativo {
+  * id_usuario : INT <<PK>>
+  --
+  * nombre : VARCHAR
+  * Apellido : VARCHAR
+  * email : VARCHAR
+}
+
+entity "ADMINISTRADOR" as administrador {
+  * id_administrador : INT <<PK, FK>>
+  --
+  nivel_administrador : VARCHAR
+}
+
+entity "SUPERADMINISTRADOR" as superadministrador {
+  * id_superadministrador : INT <<PK, FK>>
+}
+
+entity "PERMISO" as permiso {
+  * id_permiso : VARCHAR <<PK>>
+  --
+  comentario : VARCHAR
+}
+
+entity "USUARIO_PERMISO" as usuario_permiso {
+  * id_usuario : INT <<PK, FK>>
+  * id_permiso : VARCHAR <<PK, FK>>
+  --
+  fecha_asignacion : DATE
+}
+
+entity "APROBACION" as aprobacion {
+  * id_aprobacion : INT <<PK>>
+  --
+  * id_admin : INT <<FK>>
+  * id_usuario : INT <<FK>>
+  fecha_solicitud : DATE
+  estado_aprobacion : VARCHAR
+  motivo : VARCHAR
+  comentario : VARCHAR
+  cantidad : DOUBLE
+}
+
+entity "INFORME" as informe {
+  * id_informe : INT <<PK>>
+  --
+  * id_usuario : INT <<FK>>
+  tipo_informe : VARCHAR
+  fecha_creacion : DATE
+}
+
+entity "INCIDENCIA" as incidencia {
+  * id_incidencia : INT <<PK>>
+  --
+  * id_usuario : INT <<FK>>
+  motivo : VARCHAR
+  estado : VARCHAR
+  fecha_creacion : DATE
+}
+
+entity "INCIDENCIA_CLIENTE" as incidencia_cliente {
+  * id_incidencia : INT <<PK, FK>>
+  * id_cliente : INT <<PK, FK>>
+}
+
+entity "HISTORIAL" as historial {
+  * id_historial : INT <<PK>>
+  --
+  * id_cliente : INT <<FK>>
+  id_usuario : INT <<FK>>
+  * fecha : DATETIME
+  * accion : VARCHAR
+}
+
+entity "CLIENTE" as cliente {
+  * id_cliente : INT <<PK>>
+  --
+  * id_usuario : INT <<FK>>
+  nombre_empresa : VARCHAR
+  nombre_registro : VARCHAR
+  CIF : VARCHAR
+  direccion : VARCHAR
+  codigo_postal : VARCHAR
+  pais : VARCHAR
+  moneda : VARCHAR
+}
+
+entity "CONTACTO_CLIENTE" as contacto_cliente {
+  * id_contacto : INT <<PK>>
+  --
+  * id_cliente : INT <<FK>>
+  nombre : VARCHAR
+  apellidos : VARCHAR
+  telefono : VARCHAR
+  correo : VARCHAR
+  rol_empresa : VARCHAR
+  estado : VARCHAR
+}
+
+entity "PLAN" as plan {
+  * id_plan : INT <<PK>>
+  --
+  * nombre : VARCHAR
+  * tarifa_base : DECIMAL
+}
+
+entity "SUSCRIPCIÓN" as suscripcion {
+  * id_suscripcion : INT <<PK>>
+  --
+  * id_cliente : INT <<FK>>
+  * id_plan : INT <<FK>>
+  * periodicidad : VARCHAR
+}
+
+entity "RECORDATORIO" as recordatorio {
+  * id_recordatorio : INT <<PK>>
+  --
+  * id_usuario : INT <<FK>>
+  * id_factura : VARCHAR <<FK>>
+  fecha_envio : DATE
+  tipo : VARCHAR
+  canal : VARCHAR
+  estado : VARCHAR
+  intentos : INT
+}
+
+entity "RECORDATORIO_CONTACTO" as recordatorio_contacto {
+  * id_recordatorio : INT <<PK, FK>>
+  * id_contacto : INT <<PK, FK>>
+}
+
+entity "FACTURA" as factura {
+  * id_factura : VARCHAR <<PK>>
+  --
+  * id_usuario : INT <<FK>>
+  * id_cliente : INT <<FK>>
+  fecha_emision : DATE
+  importe : DOUBLE
+  impuestos : DOUBLE
+  fecha_vencimiento : DATE
+  estado_factura : VARCHAR
+  fecha_revision : DATE
+}
+
+entity "FACTURA_RECURRENTE" as factura_recurrente {
+  * id_factura : VARCHAR <<PK, FK>>
+  --
+  * id_suscripcion : INT <<FK>>
+}
+
+entity "COMPROBANTE_PAGO" as comprobante_pago {
+  * id_pago : INT <<PK>>
+  --
+  * id_factura : VARCHAR <<FK>>
+  * importe : DECIMAL
+  * fecha : DATE
+  * medio : VARCHAR
+  referencia : VARCHAR
+}
+
+usuario_operativo ||-right-o{ usuario_permiso
+permiso ||-down-o{ usuario_permiso
+usuario_operativo <|-down- administrador : hereda
+administrador <|-down- superadministrador : hereda
+usuario_operativo ||--o{ aprobacion : pide
+administrador ||--o{ aprobacion : estudia
+
+usuario_operativo ||--o{ informe : consulta
+usuario_operativo ||--o{ incidencia : revisa
+usuario_operativo |o--o{ historial : realiza
+
+usuario_operativo ||--o{ cliente : gestiona
+cliente ||--o{ historial : registra
+cliente ||--|{ contacto_cliente : asociado
+incidencia ||--|{ incidencia_cliente : "se asigna a"
+cliente ||--o{ incidencia_cliente : tiene
+
+plan ||-right-o{ suscripcion : "se usa en"
+cliente ||--|| suscripcion : paga
+suscripcion ||--|{ factura_recurrente : genera
+
+usuario_operativo ||--o{ factura : genera
+cliente ||--o{ factura : "le pertenece"
+factura <|-- factura_recurrente : hereda
+factura ||--o{ comprobante_pago : "se paga con"
+
+usuario_operativo ||--o{ recordatorio : manda
+recordatorio ||--|| factura : asociado
+recordatorio ||--|{ recordatorio_contacto : "se envía a"
+contacto_cliente ||--o{ recordatorio_contacto : recibe
+
+@enduml

@@ -71,8 +71,19 @@ Para este segundo Sprint se estableció una planificación de trabajo orientada 
 
 - Tarea 1: Realización individual de la evaluación interna del equipo (método de las bolas).
 - Tarea 2: Puesta en común con la Product Owner de las valoraciones al resto de grupos para su envío.
-- Tarea 3: Elaboración individual por parte de cada Developer de una propuesta de Diagrama Entidad-Relación inicial (identificando entidades y relaciones, sin añadir atributos ni métodos).
-- Tarea 4: Preparación individual de la justificación técnica de las entidades y relaciones elegidas para su discusión presencial.
-- Tarea 5: Sesión conjunta el próximo miércoles para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master.
-- Tarea 6: Planificación de la incorporación posterior de atributos/métodos para el Diagrama de Clases, y desarrollo futuro de los Diagramas de Secuencia y Arquitectura.
+- Tarea 3: Elaboración individual por parte de cada Developer de una propuesta de Diagrama Entidad-Relación inicial (identificando entidades y relaciones, sin añadir métodos).
+- Tarea 3.2: Preparación individual de la justificación técnica de las entidades y relaciones elegidas para su discusión presencial.
+- Tarea 3.3: Sesión conjunta el próximo miércoles para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master.
+- Tarea 6: Elaboración del Diagrama de Clases siguiendo la metodología de los anteriores con propuestas individuales y posterior puesta en común.
+- Tarea 7: Elaboración del Diagrama de Secuencia.
+- Tarea 8: Elaboración del Diagrama de Arquitectura/Componentes.
+- Tarea 9: Elaborar presentación PDF/PowerPoint para la exposición donde se incluyan los distintos diagramas y una breve explicación sobre ellos.
 - Tarea 7: Actualización de la Memoria de sesiones.
+
+## Backlog Refinement (Sesión 2 - 28/10/2026)
+
+En la segunda sesión de este segundo sprint, se pusieron en común las distintas propuestas de los Diagramas Entidad-Relación donde cada Developer explicó su diagrama y su composición, así como el porqué de las entidades y relaciones que había incluido. 
+
+Posteriormente, el equipo se puso a buscar posibles mejoras y cambios a incluir en el diagrama final, que una vez discutido, se encargará el Scrum Master de perfeccionarlo y subirlo a la plataforma con el objetivo de desarrollar el Diagrama de Clase en base al de Entidad-Relación.
+
+Por último, al igual que en la anterior reunión, se propuso la realización de un Diagrama de Clase basándose en el Diagrama de Entidad-Relación definitivo, donde se incluyan Clases, atributos, relaciones y métodos.

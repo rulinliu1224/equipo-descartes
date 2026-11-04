@@ -87,3 +87,11 @@ En la segunda sesión de este segundo sprint, se pusieron en común las distinta
 Posteriormente, el equipo se puso a buscar posibles mejoras y cambios a incluir en el diagrama final, que una vez discutido, se encargará el Scrum Master de perfeccionarlo y subirlo a la plataforma con el objetivo de desarrollar el Diagrama de Clase en base al de Entidad-Relación.
 
 Por último, al igual que en la anterior reunión, se propuso la realización de un Diagrama de Clase basándose en el Diagrama de Entidad-Relación definitivo, donde se incluyan Clases, atributos, relaciones y métodos.
+
+## Backlog Refinement (Sesión 3 - 04/11/2026)
+
+En esta sesión, se pusieron en común las distintas propuestas de los Diagramas de Clase, donde cada Desarrollador explicó la parte que había realizado. Dado que las relaciones ya estaban definidas, la exposición se centró en detallar los atributos, los métodos (o funciones) y la justificación de en qué clase debía incluirse cada uno de estos elementos.
+
+Posteriormente, el equipo debatió posibles mejoras y cambios a incluir en el modelo final. Una vez discutidos todos los puntos, el Scrum Master se encargará de unificar, perfeccionar y subir la versión definitiva del Diagrama de Clase a la plataforma.
+
+Por último, se acordó que la próxima semana no habrá reunión práctica. Para la sesión de la semana siguiente, se propuso la realización de los Diagramas de Secuencia y los Diagramas de Constructor. Para ello, el Scrum Master se encargará de asignar próximamente los casos de uso correspondientes a cada integrante. Se estableció que cada miembro realizará 12 diagramas, garantizando así que cada caso de uso cuente con al menos dos versiones distintas para poder compararlas y facilitar la elaboración de los diagramas finales.

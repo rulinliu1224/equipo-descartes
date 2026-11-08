@@ -1,0 +1,41 @@
+@startuml CU13_dashboard_salud
+
+actor "Usuario operativo\n(con permiso)" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Informe" as Inf
+entity ":Factura" as F
+entity ":ComprobantePago" as CP
+
+Actor -> UI : abre el dashboard y elige periodo
+UI -> U : tienePermiso(p)
+alt sin permiso
+  U --> UI : false
+  UI --> Actor : acceso denegado
+else con permiso
+  U --> UI : true
+  UI -> Inf ** : crear (tipo "dashboard")
+  UI -> Inf : generar(desde, hasta)
+  loop por cada factura del periodo
+    Inf -> F : calcularTotal()
+    Inf -> F : estaVencida()
+  end
+  Inf -> CP : obtener cobros del periodo
+  Inf --> UI : facturado, cobrado, pendiente y vencido
+  UI --> Actor : muestra indicadores y gráficos
+
+  opt exportar
+    Actor -> UI : exportar (CSV o PDF)
+    UI -> Inf : exportarPDF() / exportarCSV()
+    Inf --> UI : archivo
+    UI --> Actor : descarga
+  end
+
+  opt consultar salud del sistema
+    Actor -> UI : abre "Salud del sistema"
+    UI -> U : tienePermiso(p)
+    UI --> Actor : estado de integraciones y\núltima ejecución de procesos
+  end
+end
+
+@enduml

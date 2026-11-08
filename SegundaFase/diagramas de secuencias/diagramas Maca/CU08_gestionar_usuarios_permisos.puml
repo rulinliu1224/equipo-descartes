@@ -1,0 +1,53 @@
+@startuml CU08_gestionar_usuarios_permisos
+
+actor "Administrador" as Actor
+boundary ":Interfaz" as UI
+entity ":Administrador" as A
+entity "u:UsuarioOperativo" as U
+entity ":Cliente" as C
+entity ":UsuarioPermiso" as UP
+participant "Servicio Email" as Mail
+
+alt Crear usuario
+  Actor -> UI : datos, rol y clientes asignados
+  UI -> UI : validar dominio y que no exista
+  alt correo inválido o ya existente
+    UI --> Actor : error con el motivo
+  else datos válidos
+    UI -> A : crearUsuario(u)
+    A -> U ** : crear
+    loop por cada cliente asignado
+      UI -> C : reasignarResponsable(u)
+    end
+    UI -> Mail : enlace de activación al nuevo usuario
+    UI --> Actor : usuario creado
+  end
+
+else Asignar permiso
+  Actor -> UI : elige usuario y permiso
+  UI -> A : asignarPermiso(u, p)
+  A -> UP ** : crear (fechaAsignacion)
+  UI --> Actor : permiso asignado
+
+else Revocar permiso
+  Actor -> UI : elige usuario y permiso
+  UI -> A : revocarPermiso(u, p)
+  A -> UP !! : eliminar
+  UI --> Actor : permiso revocado
+
+else Desactivar usuario
+  Actor -> UI : desactiva el usuario
+  alt es el Superadministrador
+    UI --> Actor : operación no permitida
+  else otro usuario
+    UI -> A : desactivarUsuario(u)
+    note right of U : Se cierran sus sesiones activas
+    loop por cada cliente que tenía asignado
+      Actor -> UI : elige nuevo responsable
+      UI -> C : reasignarResponsable(nuevo)
+    end
+    UI --> Actor : usuario desactivado
+  end
+end
+
+@enduml

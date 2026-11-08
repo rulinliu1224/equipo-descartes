@@ -1,0 +1,34 @@
+@startuml CU14_revisar_facturacion_anual
+
+actor "Administrador" as Actor
+boundary ":Interfaz" as UI
+entity ":Administrador" as A
+entity ":Cliente" as C
+entity ":Suscripcion" as S
+entity ":Factura" as F
+entity ":Historial" as H
+
+note over Actor, UI : Se inicia por el aviso de revisión anual (CU-03)\no desde la ficha del cliente
+
+Actor -> UI : abre la revisión anual del cliente
+UI -> S : obtener plan y tarifa actual
+S --> UI : plan actual
+loop facturas de los últimos 12 meses
+  UI -> F : calcularTotal()
+end
+UI -> C : calcularDeuda()
+UI --> Actor : resumen: facturado, cobrado y rango actual
+
+alt mantiene la tarifa
+  Actor -> UI : mantener tarifa
+  UI -> H : registrar("revisión anual: tarifa mantenida")
+  UI --> Actor : revisión completada
+else <<extend>> cambia de rango
+  Actor -> UI : propone nuevo plan o tarifa
+  UI -> A : solicitarAprobacion(motivo, nuevaTarifa)
+  ref over A : CU-15 Solicitar aprobación
+  UI -> H : registrar("revisión anual: cambio propuesto")
+  UI --> Actor : cambio pendiente de aprobación
+end
+
+@enduml

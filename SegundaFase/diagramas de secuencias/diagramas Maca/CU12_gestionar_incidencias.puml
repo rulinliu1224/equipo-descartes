@@ -1,0 +1,34 @@
+@startuml CU12_gestionar_incidencias
+
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":Incidencia" as I
+entity ":Historial" as H
+participant "Servicio Email" as Mail
+
+Actor -> UI : nueva incidencia (cliente, motivo, factura opcional)
+UI -> I ** : crear (estado "Abierta")
+UI -> Mail : aviso al responsable del cliente
+UI -> H : registrar("incidencia abierta")
+UI --> Actor : incidencia creada
+
+opt la incidencia es una disputa de factura
+  ref over UI : CU-07 Pausar recordatorios por disputa
+end
+
+Actor -> UI : toma la incidencia
+UI -> I : ponerEnCurso()
+UI -> H : registrar("incidencia en curso")
+
+Actor -> UI : indica la resolución
+UI -> I : cerrar()
+UI -> H : registrar("incidencia cerrada")
+UI --> Actor : incidencia cerrada
+
+opt el problema persiste
+  Actor -> UI : reabrir incidencia
+  UI -> I : reabrir()
+  UI -> H : registrar("incidencia reabierta")
+end
+
+@enduml

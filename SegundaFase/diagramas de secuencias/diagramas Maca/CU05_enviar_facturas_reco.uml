@@ -1,0 +1,43 @@
+@startuml CU05_enviar_facturas_recordatorios
+
+control ":Proceso programado" as P
+entity ":Factura" as F
+entity ":Recordatorio" as R
+entity ":ContactoCliente" as CC
+entity ":Historial" as H
+participant "Stripe" as Stripe
+participant "Servicio Email/WhatsApp" as Mail
+
+note over P : Se ejecuta al emitir una factura\no en la revisión diaria de deudas
+
+loop por cada factura pendiente o en mora
+  P -> F : estaVencida()
+  F --> P : resultado
+  opt vencida
+    P -> F : marcarEnMora()
+  end
+
+  alt factura en disputa (recordatorios pausados)
+    note over P : No se envía nada.\nSi llegó la fecha de revisión,\nse avisa al responsable.
+  else factura pendiente o en mora
+    P -> Stripe : generar enlace de pago
+    Stripe --> P : enlace
+    P -> R ** : crear (factura, tipo, canal)
+    P -> R : enviar()
+    R -> CC : obtener contacto y canal preferido
+    R -> Mail : mensaje + PDF + enlace de pago
+    alt envío correcto
+      Mail --> R : ok
+    else falla el canal principal
+      Mail --> R : error
+      R -> R : reintentar()
+      R -> Mail : envío por canal alternativo
+      opt falla también
+        R -> Mail : aviso al responsable del cliente
+      end
+    end
+    P -> H : registrar("envío de factura/recordatorio")
+  end
+end
+
+@enduml

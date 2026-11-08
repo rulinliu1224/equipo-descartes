@@ -1,0 +1,35 @@
+@startuml CU01_iniciar_sesion
+
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+participant "Servicio Email" as Mail
+
+Actor -> UI : introduce email y contraseña
+UI -> UI : validar dominio @turbineh.com
+
+alt dominio no corporativo
+  UI --> Actor : error: solo cuentas @turbineh.com
+else dominio válido
+  UI -> U : iniciarSesion(email, password)
+  alt credenciales correctas y cuenta activa
+    U --> UI : true
+    UI -> U : tienePermiso(p)
+    U --> UI : permisos del usuario
+    UI --> Actor : muestra pantalla principal
+  else credenciales incorrectas o cuenta desactivada
+    U --> UI : false
+    UI --> Actor : error de acceso
+  end
+end
+
+opt <<extend>> Recuperar contraseña
+  Actor -> UI : selecciona "Recuperar contraseña"
+  UI -> U : recuperarContrasena()
+  U -> Mail : enviar enlace con caducidad
+  Mail --> Actor : email con enlace
+  Actor -> UI : define nueva contraseña
+  UI --> Actor : contraseña actualizada
+end
+
+@enduml

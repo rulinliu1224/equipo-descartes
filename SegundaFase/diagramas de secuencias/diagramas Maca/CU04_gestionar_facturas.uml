@@ -1,0 +1,46 @@
+@startuml CU04_gestionar_facturas
+
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Factura" as F
+entity ":Historial" as H
+
+Actor -> UI : selecciona cliente
+Actor -> UI : ingresa líneas, fecha de facturación y vencimiento
+UI -> U : generarFactura(c, fechaEmision, fechaVencimiento)
+U -> F ** : crear (estado "Borrador")
+U --> UI : factura
+UI -> F : calcularImpuestos(paisCliente)
+UI -> F : calcularTotal()
+F --> UI : total
+UI -> F : generarVistaPrevia()
+UI --> Actor : muestra vista previa
+
+opt edita el borrador
+  Actor -> UI : modifica las líneas
+  UI -> F : calcularTotal()
+  UI --> Actor : vista previa actualizada
+end
+
+alt descarta el borrador
+  Actor -> UI : descarta
+  UI -> F !! : eliminar borrador
+  UI --> Actor : borrador eliminado
+else confirma la factura
+  Actor -> UI : confirma
+  alt importe > umbral
+    UI -> U : solicitarAprobacion(motivo, importe)
+    ref over U : CU-15 Solicitar aprobación
+    UI --> Actor : factura pendiente de aprobación
+  else importe dentro del umbral
+    note over UI, F : Llegado el día de facturación (día 1)
+    UI -> F : emitir()
+    F -> F : generarPDF()
+    ref over F : CU-05 Enviar facturas y recordatorios
+    UI -> H : registrar("factura puntual emitida")
+    UI --> Actor : factura emitida
+  end
+end
+
+@enduml

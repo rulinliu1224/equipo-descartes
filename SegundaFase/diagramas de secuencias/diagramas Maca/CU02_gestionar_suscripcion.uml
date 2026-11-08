@@ -1,0 +1,51 @@
+@startuml CU02_gestionar_suscripcion
+
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Cliente" as C
+entity ":Suscripcion" as S
+entity ":Historial" as H
+participant "Stripe" as Stripe
+participant "Servicio Email/WhatsApp" as Mail
+
+Actor -> UI : selecciona cliente
+UI -> C : calcularDeuda()
+C --> UI : deuda pendiente
+UI --> Actor : estado de la suscripción y deuda
+
+alt Baja de la recurrencia
+  Actor -> UI : solicita baja (motivo, fecha)
+  UI -> C : tieneFacturasPendientes()
+  C --> UI : resultado
+  opt tiene facturas pendientes
+    UI --> Actor : aviso del importe pendiente
+    Actor -> UI : confirma la baja
+  end
+  UI -> S : cancelar()
+  S -> Stripe : cancelar suscripción
+  UI -> C : darDeBaja()
+  note right of C
+    Con deuda queda en "Baja con deuda":
+    no se generan más facturas, pero
+    los recordatorios siguen activos.
+  end note
+  UI -> H : registrar("baja de la recurrencia")
+  UI -> Mail : confirmación de baja al cliente
+  UI --> Actor : baja registrada
+
+else Cambio de plan o tarifa
+  Actor -> UI : elige el nuevo plan
+  UI -> U : solicitarAprobacion(motivo, cantidad)
+  ref over U : CU-15 Solicitar aprobación
+  UI --> Actor : cambio pendiente de aprobación
+  note right of UI : Se aplica cuando se aprueba (CU-16)
+
+else Pausa
+  Actor -> UI : indica periodo y motivo
+  UI -> S : pausar()
+  UI -> H : registrar("suscripción pausada")
+  UI --> Actor : suscripción pausada
+end
+
+@enduml

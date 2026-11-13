@@ -19,13 +19,13 @@ El equipo partió de la transcripción de la entrevista y de los distintos apunt
 
 El objetivo del Sprint es formalizar un Diagrama de Casos de Uso a partir de los requisitos ya propuestos. Al mismo tiempo, la realización de dos documentos explicando las razones de la implementación de los distintos requisitos y casos de uso respectivamente.
 
-- Tarea 1: Análisis y puesta en común de requisitos funcionales y no funcionales.
-- Tarea 2: Elaboración individual de propuestas de Diagrama de Casos de Uso (UML) por parte de los Developers
+- Tarea 1: Análisis y puesta en común de requisitos funcionales y no funcionales. (Todos)
+- Tarea 2: Elaboración individual de propuestas de Diagrama de Casos de Uso (UML) por parte de los Developers (Todos)
 - Tarea 3: Elaborar un documento con la explicación de los requisitos funcionales y no funcionales (Scrum Master y Developers).
 - Tarea 4: Elaborar documento con los Casos de Uso bien explicados y redactados (Product Owner)
 - Tarea 5: Elaborar Informe Scrum (Developers)
-- Tarea 6: Elaborar una presentación (PDF/PowerPoint) donde se recojan las principales funcionalidades del sistema, los Casos de Uso, los requisitos y un pequeño resumen de lo que se ha llevado a cabo en el Sprint.
-- Tarea 7: Sesión para poner en común esos diagramas y añadir posibles mejoras al más completo de ellos.
+- Tarea 6: Elaborar una presentación (PDF/PowerPoint) donde se recojan las principales funcionalidades del sistema, los Casos de Uso, los requisitos y un pequeño resumen de lo que se ha llevado a cabo en el Sprint. (Developers)
+- Tarea 7: Sesión para poner en común esos diagramas y añadir posibles mejoras al más completo de ellos. (Todos)
 ## Backlog Refinement (Sesión 2 - 07/10/2026)
 
 La segunda sesión comenzó con la puesta en común de los diagramas de casos de uso individuales. Cada miembro expuso la arquitectura general de su propuesta, identificando mejoras y ajustes para construir el diagrama definitivo.
@@ -69,16 +69,22 @@ En esta primera sesión se revisaron las calificaciones y el feedback de las pre
 
 Para este segundo Sprint se estableció una planificación de trabajo orientada a completar aproximadamente un diagrama por semana. Se revisó cómo enfocar los Diagramas de Secuencia, acordando que la prioridad inmediata es identificar y definir las entidades y relaciones base a partir de los casos de uso para abordar el diseño de datos y el modelo estructural.
 
-- Tarea 1: Realización individual de la evaluación interna del equipo (método de las bolas).
-- Tarea 2: Puesta en común con la Product Owner de las valoraciones al resto de grupos para su envío.
-- Tarea 3: Elaboración individual por parte de cada Developer de una propuesta de Diagrama Entidad-Relación inicial (identificando entidades y relaciones, sin añadir métodos).
-- Tarea 4: Preparación individual de la justificación técnica de las entidades y relaciones elegidas para su discusión presencial.
-- Tarea 5: Sesión conjunta el próximo miércoles para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master.
-- Tarea 6: Elaboración del Diagrama de Clases siguiendo la metodología de los anteriores con propuestas individuales y posterior puesta en común.
-- Tarea 7: Elaboración del Diagrama de Secuencia.
-- Tarea 8: Elaboración del Diagrama de Arquitectura/Componentes.
-- Tarea 9: Elaborar presentación PDF/PowerPoint para la exposición donde se incluyan los distintos diagramas y una breve explicación sobre ellos.
-- Tarea 10: Actualización de la Memoria de sesiones.
+- Tarea 1: Realización individual de la evaluación interna del equipo (método de las bolas). (Todos)
+- Tarea 2: Puesta en común con la Product Owner de las valoraciones al resto de grupos para su envío. (Todos)
+- Tarea 3: Elaboración individual por parte de cada Developer de una propuesta de Diagrama Entidad-Relación inicial (identificando entidades y relaciones, sin añadir métodos). Objetivo: Subir diagramas Entidad-Relación en PlantUML al repositorio (Todos)
+- Tarea 4: Puesta en común de los diagramas para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master. (Todos)
+- Tarea 5: Realización de la propuesta final del Diagrama de Entidad-Relación (Scrum Master)
+- Tarea 6: Elaboración del Diagrama de Clases siguiendo la metodología de los anteriores con propuestas individuales (Developers y Product Owner)
+- Tarea 7: Puesta en común de los diagramas de clases para revisar las propuestas individuales y consolidar la versión final del diagrama con el Scrum Master. (Todos)
+- Tarea 8: Realización de la propuesta final del Diagrama de Clases (Scrum Master)
+- Tarea 9: Elaboraciones individuales de Diagramas de Secuencia (Developers y Product Owner)
+- Tarea 10: Realización de los Diagramas de Secuencia definitivos para cada caso de uso (Scrum Master)
+- Tarea 11: Elaboración individual del Diagrama de Arquitectura/Componentes. (Product Owner y Developers)
+- Tarea 12: Realización de la propuesta final del Diagrama de Arquitectura definitivo (Scrum Master)
+- Tarea 13: Elaborar presentación PDF/PowerPoint para la exposición donde se incluyan los distintos diagramas y una breve explicación sobre ellos. (Developers)
+- Tarea 14: Actualización de la Memoria de sesiones. (Developers)
+
+En esta primera sesión, hemos llevado a cabo las tareas 1 y 2, y por lo tanto, las damos por finalizadas. Las tareas 3 y 4 son las que se dejan encaminadas para terminarlas en la siguiente reunión, para que el Scrum Master pueda realizar la tarea 5.
 
 ## Backlog Refinement (Sesión 2 - 28/10/2026)
 
@@ -88,10 +94,14 @@ Posteriormente, el equipo se puso a buscar posibles mejoras y cambios a incluir 
 
 Por último, al igual que en la anterior reunión, se propuso la realización de un Diagrama de Clase basándose en el Diagrama de Entidad-Relación definitivo, donde se incluyan Clases, atributos, relaciones y métodos.
 
+En cuanto a las tareas propuestas, damos por terminadas las tareas 3, 4 y 5. La evaluación de estas tareas es satisfactoria, cumpliéndose siempre el plazo de trabajo y con implicación de algunos de los developers en la realización de las tareas. Al igual que en la sesión anterior, ponemos en marcha las tareas 6, 7 y 8 para al final de la semana siguiente, tras la siguiente sesión, tenerlas terminadas.
+
 ## Backlog Refinement (Sesión 3 - 04/11/2026)
 
 En esta sesión, se pusieron en común las distintas propuestas de los Diagramas de Clase, donde cada Desarrollador explicó la parte que había realizado. Dado que las relaciones ya estaban definidas, la exposición se centró en detallar los atributos, los métodos (o funciones) y la justificación de en qué clase debía incluirse cada uno de estos elementos.
 
 Posteriormente, el equipo debatió posibles mejoras y cambios a incluir en el modelo final. Una vez discutidos todos los puntos, el Scrum Master se encargará de unificar, perfeccionar y subir la versión definitiva del Diagrama de Clase a la plataforma.
 
-Por último, se acordó que la próxima semana no habrá reunión práctica. Para la sesión de la semana siguiente, se propuso la realización de los Diagramas de Secuencia y los Diagramas de Constructor. Para ello, el Scrum Master se encargará de asignar próximamente los casos de uso correspondientes a cada integrante. Se estableció que cada miembro realizará 12 diagramas, garantizando así que cada caso de uso cuente con al menos dos versiones distintas para poder compararlas y facilitar la elaboración de los diagramas finales.
+Por último, se acordó que la próxima semana no habrá reunión práctica. Para la sesión de la semana siguiente, se propuso la realización de los Diagramas de Secuencia y los Diagramas de Arquitectura. Para ello, el Scrum Master se encargará de asignar los casos de uso correspondientes a cada integrante. Se estableció que cada miembro realizará 12 diagramas, garantizando así que cada caso de uso cuente con al menos dos versiones distintas para poder compararlas y facilitar la elaboración de los diagramas finales.
+
+Por lo tanto, quedan terminadas las tareas 6, 7 y 8. Por otro lado, ponemos en marcha las tareas 9, 10, 11 y 12 con el objetivo de agilizar el desarrollo de estas y de avanzar a un buen ritmo en estas semanas sin reunión intermedia.

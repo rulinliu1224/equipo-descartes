@@ -1,0 +1,58 @@
+@startuml CU04_gestionar_facturas_puntuales
+title CU-04 - Gestionar facturas puntuales
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Cliente" as C
+entity ":Factura" as F
+entity ":Historial" as H
+participant "Generador PDF" as PDF
+Actor -> UI : selecciona cliente
+UI -> C : comprobarExistencia()
+C --> UI : cliente válido
+Actor -> UI : introduce líneas, descuentos, impuestos y fechas
+UI -> U : generarFacturaPuntual(cliente, lineas, fechas)
+U -> F ** : crear(estado "Borrador")
+U -> F : calcularImpuestos()
+U -> F : calcularTotal()
+F --> UI : factura y total
+UI -> PDF : generarVistaPrevia(factura)
+PDF --> UI : vista previa
+UI --> Actor : muestra comprobante
+opt edición del borrador
+ Actor -> UI : modifica líneas
+ UI -> F : actualizarBorrador(cambios)
+ F -> F : comprobar versión
+ alt sin conflicto
+  F -> F : recalcularTotal()
+  F --> UI : borrador actualizado
+ else otro usuario guardó entretanto
+  F --> UI : conflicto de edición
+  UI --> Actor : rechaza guardado y avisa
+ end
+end
+alt descarta borrador
+ Actor -> UI : descarta
+ UI -> F !! : eliminarBorrador()
+ UI --> Actor : borrador eliminado sin alterar saldos
+else confirma factura
+ Actor -> UI : confirma factura
+ UI -> F : comprobarUmbralAprobacion()
+ alt importe superior al umbral
+  F -> U : solicitarAprobacion(motivo, importe)
+  ref over U : CU-15 Solicitar aprobación
+  UI --> Actor : factura pendiente de aprobación
+ else importe dentro del umbral
+  F --> UI : factura confirmada
+ end
+end
+... llega el día de facturación y está confirmada/aprobada ...
+UI -> F : emitir()
+F -> F : asignarNumeracionOficial()
+F -> PDF : generarYConservarPDFOriginal()
+PDF --> F : PDF original
+F -> C : actualizarSaldoDeudor()
+F -> H : registrar("factura puntual emitida")
+ref over F : CU-05 Enviar facturas y recordatorios
+UI --> Actor : factura emitida y pendiente de pago
+@enduml

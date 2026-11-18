@@ -1,0 +1,49 @@
+@startuml CU05_enviar_facturas_recordatorios
+title CU-05 - Enviar facturas y recordatorios de pago
+control ":Proceso programado" as P
+entity ":Factura" as F
+entity ":Recordatorio" as R
+entity ":ContactoCliente" as CC
+entity ":Historial" as H
+participant "Stripe" as Stripe
+participant "Servicio Email/WhatsApp" as Mail
+actor "Usuario responsable" as Resp
+note over P : Se ejecuta al emitir una factura\no durante la revisión diaria de deudas.
+loop por cada factura emitida pendiente o en mora
+ P -> F : obtenerEstadoYVencimiento()
+ F --> P : estado y vencimiento
+ opt factura vencida
+  P -> F : marcarEnMora()
+ end
+ alt factura pagada
+  P -> R : cancelarRecordatoriosPendientes()
+ else factura en disputa
+  P -> H : registrar("aviso omitido por disputa")
+  opt llegó la fecha de revisión
+   P -> Resp : avisar para revisar o prorrogar disputa
+  end
+ else pendiente o en mora y corresponde aviso
+  P -> Stripe : generarEnlacePago(factura)
+  Stripe --> P : enlace de pago
+  P -> CC : obtenerContactoYCanalPreferido()
+  CC --> P : datos de contacto
+  P -> F : obtenerPDFOriginal()
+  F --> P : PDF original
+  P -> R ** : crear(factura, calendario, canal)
+  R -> Mail : enviar(plantilla, PDF, enlace)
+  alt envío correcto
+   Mail --> R : envío confirmado
+  else falla canal principal
+   Mail --> R : error
+   R -> Mail : reintentar por canal alternativo
+   alt canal alternativo correcto
+    Mail --> R : envío confirmado
+   else fallan ambos canales
+    Mail --> R : error en ambos canales
+    R -> Resp : notificar fallo al responsable
+   end
+  end
+  P -> H : registrar(fecha, hora, canal y resultado)
+ end
+end
+@enduml

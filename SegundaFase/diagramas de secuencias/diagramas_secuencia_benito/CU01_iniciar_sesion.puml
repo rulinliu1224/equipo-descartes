@@ -1,0 +1,45 @@
+@startuml CU01_iniciar_sesion
+title CU-01 - Iniciar sesión
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Sesion" as Ses
+participant "Servicio Email" as Mail
+Actor -> UI : introduce email y contraseña
+UI -> UI : validar dominio @turbineh.com
+alt dominio no corporativo
+ UI --> Actor : error: solo cuentas @turbineh.com
+else dominio válido
+ UI -> U : iniciarSesion(email, password)
+ U -> U : comprobar cuenta, estado y contraseña
+ alt credenciales correctas y cuenta activa
+  U --> UI : true
+  UI -> U : obtenerRolPermisosYClientes()
+  U --> UI : rol, permisos y clientes asignados
+  UI -> Ses ** : crear(usuario, tiempoInactividad)
+  UI --> Actor : muestra pantalla principal según permisos
+ else credenciales incorrectas
+  U --> UI : false
+  UI --> Actor : error genérico y permite reintentar
+ else cuenta desactivada
+  U --> UI : cuenta inactiva
+  UI --> Actor : acceso denegado; contactar con Administrador
+ end
+end
+opt <<extend>> Recuperar contraseña
+ Actor -> UI : selecciona "Recuperar contraseña"
+ UI -> U : recuperarContrasena(email)
+ U -> Mail : enviar enlace con caducidad
+ Mail --> Actor : email con enlace
+ Actor -> UI : abre enlace y define nueva contraseña
+ UI -> U : restablecerContrasena(token, nuevaPassword)
+ alt enlace vigente
+  U -> U : actualizar contraseña e invalidar token
+  U --> UI : contraseña actualizada
+ else enlace caducado
+  U --> UI : token caducado
+  UI --> Actor : permite solicitar otro enlace
+ end
+end
+note over Ses : La sesión se cierra automáticamente\nal superar el tiempo de inactividad configurado.
+@enduml

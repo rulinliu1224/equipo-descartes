@@ -1,0 +1,47 @@
+@startuml CU12_gestionar_incidencias
+title CU-12 - Gestionar incidencias
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":Incidencia" as I
+entity ":Cliente" as C
+entity ":Factura" as F
+entity ":Historial" as H
+participant "Servicio Email/WhatsApp" as Mail
+Actor -> UI : nueva incidencia (cliente, título, descripción,\nprioridad y factura opcional)
+UI -> C : obtenerResponsable()
+C --> UI : responsable del cliente
+UI -> I ** : crear(estado "Abierta", responsable)
+I --> UI : incidencia creada
+UI -> Mail : notificar al responsable
+UI -> H : registrar("incidencia abierta")
+UI --> Actor : incidencia creada
+opt la incidencia es una disputa de factura
+ UI -> F : ofrecerPausarRecordatorios()
+ ref over UI, F : CU-07 Pausar recordatorios por disputa
+end
+Actor -> UI : añade comentario y pasa a En curso
+UI -> I : ponerEnCurso(comentario)
+I -> H : registrar("incidencia en curso")
+opt reasignación
+ Actor -> UI : selecciona nuevo responsable
+ UI -> I : reasignar(nuevoResponsable)
+ I -> Mail : notificar al nuevo responsable
+ I -> H : registrar("incidencia reasignada")
+end
+alt incidencia resuelta
+ Actor -> UI : indica resolución y cierra
+ UI -> I : cerrar(resolucion)
+ alt resolución indicada
+  I -> H : registrar("incidencia cerrada", resolucion)
+  UI --> Actor : incidencia cerrada
+ else resolución vacía
+  I --> UI : error: resolución obligatoria
+  UI --> Actor : no se puede cerrar sin resolución
+ end
+else el problema persiste
+ Actor -> UI : reabre incidencia
+ UI -> I : reabrir()
+ I -> H : registrar("incidencia reabierta")
+ UI --> Actor : incidencia abierta de nuevo
+end
+@enduml

@@ -1,0 +1,38 @@
+@startuml CU15_solicitar_aprobacion
+title CU-15 - Solicitar aprobación
+actor "Usuario operativo / Administrador solicitante" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Aprobacion" as Ap
+entity ":Operacion" as Op
+participant "Servicio Email" as Mail
+actor "Administradores aprobadores" as Admins
+note over Actor, UI : Se ejecuta desde CU-04 (importe > umbral)\no desde CU-02 / CU-14 (cambio de tarifa).
+UI -> U : solicitarAprobacion(motivo, cantidad, cliente, valores)
+U -> U : comprobar si ya existe solicitud pendiente igual
+alt ya existe una pendiente
+ U --> UI : solicitud existente
+ UI --> Actor : aviso: ya hay una solicitud pendiente
+else no existe
+ U -> Ap ** : crear(fechaSolicitud, motivo, cantidad, cliente, valores)
+ note right of Ap : estadoAprobacion = "Pendiente".\nLa operación queda bloqueada.
+ Ap -> Op : bloquearOperacion()
+ Ap --> UI : aprobación creada
+ UI -> Mail : avisar a administradores con permiso
+ Mail --> Admins : nueva solicitud pendiente
+ UI --> Actor : operación pendiente de aprobación
+end
+opt el solicitante retira la solicitud antes de resolverse
+ Actor -> UI : retirar solicitud
+ UI -> Ap : retirar()
+ Ap -> Ap : comprobar estado pendiente
+ alt sigue pendiente
+  Ap -> Op : desbloquearOperacion()
+  Ap --> UI : solicitud marcada como "Retirada"
+  UI --> Actor : retirada confirmada
+ else ya está resuelta
+  Ap --> UI : no se puede retirar
+  UI --> Actor : mostrar aviso
+ end
+end
+@enduml

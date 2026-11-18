@@ -1,0 +1,59 @@
+@startuml CU13_dashboard_financiero_salud
+title CU-13 - Consultar dashboard financiero y estado del sistema
+actor "Usuario operativo (con permiso)" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Informe" as Inf
+entity ":Factura" as F
+entity ":ComprobantePago" as CP
+entity ":ProcesoAutomatico" as PA
+entity ":Integracion" as Int
+Actor -> UI : abre dashboard y selecciona periodo
+UI -> U : tienePermiso("dashboard")
+alt sin permiso
+ U --> UI : false
+ UI --> Actor : acceso denegado
+else con permiso
+ U --> UI : true
+ UI -> Inf ** : crear(tipo "dashboard", periodo)
+ UI -> Inf : generar(desde, hasta, clientesPermitidos)
+ loop por cada factura del periodo
+  Inf -> F : calcularTotal()
+  Inf -> F : estaVencida()
+ end
+ Inf -> CP : obtenerCobrosDelPeriodo()
+ CP --> Inf : cobros
+ Inf --> UI : facturado, cobrado, pendiente y vencido
+ UI --> Actor : muestra indicadores y gráficos
+ opt exportar dashboard
+  Actor -> UI : exportar(CSV o PDF)
+  UI -> Inf : exportar(formato)
+  alt exportación correcta
+   Inf --> UI : archivo generado
+   UI --> Actor : descarga
+  else error de exportación
+   Inf --> UI : error
+   UI --> Actor : alerta y opción de reintentar
+  end
+ end
+ opt consultar estado del sistema (permiso específico)
+  Actor -> UI : abre "Estado del sistema"
+  UI -> U : tienePermiso("estadoSistema")
+  alt sin permiso
+   U --> UI : false
+   UI --> Actor : acceso denegado
+  else con permiso
+   U --> UI : true
+   UI -> Int : consultarEstadoIntegraciones()
+   Int --> UI : estado Stripe, Email y WhatsApp
+   UI -> PA : consultarUltimasEjecucionesYErrores()
+   PA --> UI : ejecuciones y errores
+   UI --> Actor : muestra estado de integraciones y procesos
+   Actor -> UI : abre log de un proceso
+   UI -> PA : obtenerDetallePorCliente(proceso)
+   PA --> UI : detalle del log
+   UI --> Actor : muestra detalle
+  end
+ end
+end
+@enduml

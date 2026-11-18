@@ -1,0 +1,61 @@
+@startuml CU02_gestionar_suscripcion
+title CU-02 - Gestionar suscripción y baja de cliente
+actor "Usuario operativo" as Actor
+boundary ":Interfaz" as UI
+entity ":UsuarioOperativo" as U
+entity ":Cliente" as C
+entity ":Suscripcion" as S
+entity ":Factura" as F
+entity ":Historial" as H
+participant "Stripe" as Stripe
+participant "Servicio Email/WhatsApp" as Mail
+Actor -> UI : busca y selecciona cliente
+UI -> C : obtenerDatosYSuscripcion()
+C --> UI : datos y estado de suscripción
+UI -> F : consultarFacturasPendientes()
+F --> UI : deuda pendiente
+UI --> Actor : muestra estado y deuda
+alt Baja de la recurrencia
+ Actor -> UI : solicita baja (motivo, fecha efectiva)
+ UI -> C : tieneFacturasPendientes()
+ C --> UI : resultado
+ opt hay deuda pendiente
+  UI --> Actor : informa importe y solicita confirmación
+  Actor -> UI : confirma baja
+ end
+ UI -> S : cancelarRecurrencia()
+ S -> Stripe : cancelar suscripción
+ alt cancelación correcta
+  Stripe --> S : confirmación
+ else fallo en Stripe
+  Stripe --> S : error
+  S -> H : registrar incidencia y reintento
+  S --> UI : baja registrada localmente; cancelación externa pendiente
+ end
+ UI -> C : actualizarEstadoBaja()
+ note right of C : Con deuda queda "Baja con deuda".\nNo se generan facturas recurrentes,\npero continúa el recobro de las emitidas.
+ UI -> H : registrar("baja de recurrencia", motivo, fecha)
+ UI -> Mail : enviar confirmación de baja
+ UI --> Actor : baja registrada
+else Cambio de plan o tarifa
+ Actor -> UI : selecciona nuevo plan o tarifa
+ UI -> S : proponerCambio(plan, tarifa)
+ S -> U : solicitarAprobacion(motivo, cantidad)
+ ref over U : CU-15 Solicitar aprobación
+ UI --> Actor : cambio pendiente de aprobación
+else Pausa de la suscripción
+ Actor -> UI : indica fechas y motivo
+ UI -> S : pausar(fechaInicio, fechaFin, motivo)
+ S -> H : registrar("suscripción pausada")
+ UI --> Actor : suscripción pausada
+ note right of S : No genera facturas durante la pausa\ny se reactiva al finalizar.
+end
+opt se paga la última factura pendiente
+ Stripe -> F : notificar pago confirmado
+ F -> C : recalcularDeuda()
+ opt deuda total igual a cero y cliente "Baja con deuda"
+  F -> C : cambiarEstado("Baja")
+  C -> Mail : notificar al responsable
+ end
+end
+@enduml

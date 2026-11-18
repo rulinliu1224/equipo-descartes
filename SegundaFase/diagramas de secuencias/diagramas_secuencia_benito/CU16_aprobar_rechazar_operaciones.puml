@@ -1,0 +1,53 @@
+@startuml CU16_aprobar_rechazar_operaciones
+title CU-16 - Aprobar o rechazar operaciones
+actor "Administrador" as Actor
+boundary ":Interfaz" as UI
+entity ":Administrador" as A
+entity ":Aprobacion" as Ap
+entity ":Operacion" as Op
+entity ":Historial" as H
+participant "Servicio Email" as Mail
+actor "Usuario solicitante" as Sol
+Actor -> UI : abre bandeja de aprobaciones
+UI -> Ap : listarPendientesOrdenadasPorAntiguedad()
+Ap --> UI : solicitudes pendientes
+UI --> Actor : muestra solicitudes
+Actor -> UI : abre una solicitud
+UI -> Ap : obtenerDetalle()
+Ap --> UI : valores actuales y propuestos
+UI --> Actor : muestra detalle
+Actor -> UI : decide aprobar o rechazar
+UI -> A : resolverSolicitud(decision, motivo)
+A -> Ap : obtenerSolicitanteYEstado()
+Ap --> A : datos de solicitud
+alt Administrador es el propio solicitante
+ A --> UI : decisión no permitida
+ UI --> Actor : debe resolverla otro Administrador
+else Administrador distinto del solicitante
+ A -> Op : comprobarQueNoHaCambiado()
+ Op --> A : resultado
+ alt la operación cambió desde la solicitud
+  A --> UI : conflicto; requiere nueva revisión
+  UI --> Actor : no se aplica la aprobación
+ else operación sin cambios
+  alt aprobar
+   A -> Ap : aprobar(fecha, autor)
+   Ap -> Op : aplicarOperacionPropuesta()
+   Op --> Ap : operación aplicada
+   Ap -> H : registrar decisión en historial del cliente
+   Ap -> Mail : notificar aprobación al solicitante
+   Mail --> Sol : solicitud aprobada
+   UI --> Actor : operación aprobada
+  else rechazar
+   A -> Ap : rechazar(motivo)
+   note right of Ap : El motivo de rechazo es obligatorio.
+   Ap -> Op : descartarPropuesta()
+   note right of Op : La factura vuelve a Borrador\no se mantiene la tarifa vigente.
+   Ap -> H : registrar decisión y motivo
+   Ap -> Mail : notificar rechazo al solicitante
+   Mail --> Sol : solicitud rechazada y motivo
+   UI --> Actor : operación rechazada
+  end
+ end
+end
+@enduml

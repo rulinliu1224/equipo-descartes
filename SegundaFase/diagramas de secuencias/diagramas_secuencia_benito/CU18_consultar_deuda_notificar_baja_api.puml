@@ -1,0 +1,51 @@
+@startuml CU18_consultar_deuda_notificar_baja_api
+title CU-18 - Consultar deuda y notificar baja mediante API
+actor "Sistema externo" as Actor
+boundary ":API" as API
+entity ":AutenticacionAPI" as Auth
+entity ":Cliente" as C
+entity ":Factura" as F
+entity ":SolicitudBaja" as SB
+entity ":LogAPI" as Log
+participant "Servicio de notificaciones" as Mail
+actor "Usuario responsable" as Resp
+Actor -> API : petición + credenciales + identificador de cliente
+API -> Auth : validarCredencialesYPermisos()
+Auth --> API : resultado de autenticación
+alt credenciales inválidas o sin permisos
+ API -> Log : registrar("petición no autorizada")
+ API --> Actor : error de autorización
+else petición autorizada
+ API -> API : comprobar límite de peticiones
+ alt exceso de peticiones
+  API --> Actor : error de límite e indicación para reintentar
+ else dentro del límite
+  alt consulta de deuda
+   API -> C : buscarCliente(idCliente)
+   alt cliente inexistente
+    C --> API : no encontrado
+    API --> Actor : error 404: recurso no encontrado
+   else cliente existente
+    C --> API : cliente
+    API -> F : obtenerFacturasPendientesYMora(cliente)
+    F --> API : detalle de facturas
+    API -> C : calcularDeudaTotal()
+    C --> API : deuda total
+    API --> Actor : detalle de facturas y deuda total
+   end
+  else notificación de solicitud de baja
+   Actor -> API : enviarSolicitudBaja(cliente, motivo, fecha)
+   API -> C : comprobarExistencia()
+   C --> API : cliente válido
+   API -> SB ** : crear(motivo, fecha, estado "Pendiente")
+   SB -> Mail : notificar al responsable del cliente
+   Mail --> Resp : solicitud de baja para tramitar
+   API -> F : consultarDeudaPendiente()
+   F --> API : importe y facturas pendientes
+   API --> Actor : recepción confirmada y deuda pendiente
+  end
+  API -> Log : registrarPeticion()
+  Log --> API : petición registrada
+ end
+end
+@enduml

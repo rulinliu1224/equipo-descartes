@@ -1,0 +1,59 @@
+@startuml CU08_gestionar_usuarios_permisos
+title CU-08 - Gestionar usuarios y permisos
+actor "Administrador" as Actor
+boundary ":Interfaz" as UI
+entity ":Administrador" as A
+entity ":UsuarioOperativo" as U
+entity ":Cliente" as C
+entity ":UsuarioPermiso" as UP
+entity ":Sesion" as Ses
+participant "Servicio Email" as Mail
+Actor -> UI : abre gestión de usuarios
+UI -> A : listarUsuarios()
+A --> UI : lista de usuarios
+alt Crear usuario
+ Actor -> UI : introduce datos, rol y clientes asignados
+ UI -> UI : validar dominio y unicidad del correo
+ alt correo inválido o ya existente
+  UI --> Actor : error con el motivo
+ else datos válidos
+  UI -> A : crearUsuario(datos, rol)
+  A -> U ** : crear()
+  loop por cada cliente asignado
+   UI -> C : asignarResponsable(U)
+  end
+  A -> UP ** : asignarPermisosDelRol(U, rol)
+  UI -> Mail : enviar enlace de activación
+  Mail --> U : enlace para definir contraseña
+  UI --> Actor : usuario creado
+ end
+else Modificar rol o permisos
+ Actor -> UI : selecciona usuario y define rol/permisos
+ UI -> A : actualizarPermisos(U, rol, permisos)
+ A -> UP : guardarPermisos()
+ A -> Ses : aplicarCambiosEnSesiones(U)
+ UI --> Actor : permisos actualizados
+else Desactivar usuario
+ Actor -> UI : desactiva usuario
+ UI -> A : desactivarUsuario(U)
+ alt usuario es Superadministrador
+  UI --> Actor : operación no permitida
+ else usuario desactivable
+  UI -> U : cambiarEstado("Inactivo")
+  U -> Ses : invalidarSesionesActivas()
+  opt tiene clientes asignados
+   loop por cada cliente asignado
+    Actor -> UI : elige nuevo responsable
+    UI -> C : reasignarResponsable(nuevoUsuario)
+   end
+  end
+  UI --> Actor : usuario desactivado
+ end
+end
+opt Permiso temporal
+ Actor -> UI : concede permiso con fechas de vigencia
+ UI -> UP ** : crearPermisoTemporal(U, permiso, fechas)
+ ... llega la fecha de fin ...
+ UP -> UP !! : retirarPermisoTemporal()
+end
+@enduml

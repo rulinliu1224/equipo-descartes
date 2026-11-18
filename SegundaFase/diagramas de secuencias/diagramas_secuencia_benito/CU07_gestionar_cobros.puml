@@ -1,0 +1,72 @@
+@startuml CU07_gestionar_cobros
+title CU-07 - Gestionar cobros y pasarela de pagos
+actor "Usuario operativo" as Actor
+participant "Stripe" as Stripe
+boundary ":Interfaz" as UI
+boundary ":Webhook" as WH
+entity ":ComprobantePago" as CP
+entity ":Factura" as F
+entity ":Cliente" as C
+entity ":Historial" as H
+participant "Servicio de notificaciones" as Notif
+alt Pago vía Stripe
+ Stripe -> WH : evento de pago (firma, importe, referencia)
+ WH -> WH : validarFirma()
+ alt firma no válida
+  WH -> H : registrar("evento descartado: firma inválida")
+ else firma válida
+  WH -> CP : comprobarEventoDuplicado()
+  alt evento duplicado
+   WH -> H : registrar("pago duplicado no aplicado")
+  else evento nuevo
+   WH -> F : consultarImportePendiente()
+   F --> WH : importe pendiente
+   WH -> CP ** : crear(importe, fecha, medio, referencia)
+   WH -> CP : validarImporte()
+   alt importe inferior al pendiente
+    WH -> F : registrarPagoParcial(CP)
+    F -> F : actualizarEstado("Parcial")
+    WH -> C : recalcularDeuda()
+    WH -> Notif : avisar pago parcial al responsable
+   else importe igual al pendiente
+    WH -> F : registrarPago(CP)
+    F -> F : actualizarEstado("Pagada")
+    WH -> C : recalcularDeuda()
+    WH -> Notif : cancelarRecordatorios(factura)
+    opt cliente "Baja con deuda" y sin deuda
+     WH -> C : cambiarEstado("Baja")
+     WH -> Notif : notificar al responsable
+    end
+   else importe superior al pendiente
+    WH -> F : registrarPago(CP)
+    WH -> H : registrar incidencia por diferencia
+    WH -> Notif : avisar al responsable para revisión
+   end
+   WH -> H : registrar("pago procesado")
+  end
+ end
+else Pago fallido o rechazado
+ Stripe -> WH : evento de pago fallido
+ WH -> CP : registrarIntentoFallido()
+ ref over WH : CU-05 Enviar aviso de pago rechazado
+else Registro manual
+ Actor -> UI : selecciona factura e introduce importe, fecha y medio
+ UI -> CP ** : crear(importe, fecha, medio, referencia)
+ UI -> CP : validar()
+ UI -> F : registrarPago(CP)
+ F -> C : recalcularDeuda()
+ UI -> H : registrar("pago manual registrado")
+ UI --> Actor : pago registrado
+else Pausar recordatorios por disputa
+ Actor -> UI : indica motivo y fecha de revisión
+ UI -> F : pausarRecordatorios(fechaRevision)
+ F -> F : marcarEstado("En disputa")
+ UI -> H : registrar("factura en disputa")
+ UI --> Actor : recordatorios pausados
+ opt reanudar recordatorios
+  Actor -> UI : reanudar recordatorios
+  UI -> F : reanudarRecordatorios()
+  UI --> Actor : recordatorios reanudados
+ end
+end
+@enduml

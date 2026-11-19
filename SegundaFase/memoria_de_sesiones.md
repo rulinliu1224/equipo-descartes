@@ -105,3 +105,17 @@ Posteriormente, el equipo debatió posibles mejoras y cambios a incluir en el mo
 Por último, se acordó que la próxima semana no habrá reunión práctica. Para la sesión de la semana siguiente, se propuso la realización de los Diagramas de Secuencia y los Diagramas de Arquitectura. Para ello, el Scrum Master se encargará de asignar los casos de uso correspondientes a cada integrante. Se estableció que cada miembro realizará 12 diagramas, garantizando así que cada caso de uso cuente con al menos dos versiones distintas para poder compararlas y facilitar la elaboración de los diagramas finales.
 
 Por lo tanto, quedan terminadas las tareas 6, 7 y 8. Por otro lado, ponemos en marcha las tareas 9, 10, 11 y 12 con el objetivo de agilizar el desarrollo de estas y de avanzar a un buen ritmo en estas semanas sin reunión intermedia.
+
+## Backlog Refinement y Sprint Retrospective (Sesión 4 - 18/11/2026)
+
+En la cuarta sesión, se dieron por terminadas las tareas 9 y 10 donde cada desarrollador, durante el periodo entre una sesión y la siguiente, subió al repositorio los 12 diagramas de secuencia que se repartieron en la sesión anterior y el Scrum Master revisó cada uno de ellos para buscar los aspectos positivos de cada uno y realizar la versión definitiva de un diagrama de secuencia para cada uno de los 18 casos de uso que se definieron en el primer Sprint.
+
+Una vez con los diagramas definidos, también se pusieron en común las propuestas individuales de Diagramas de Componentes, dando por finalizada la tarea 11. De cara al desarrollo de la tarea 12, el Scrum Master realizará el diagrama definitivo basándose en las distintas propuestas.
+
+También se pensó el flujo a seguir para preparar la presentación de cara a la exposición de cara a dar por finalizada la tarea 13. Se estableció cómo sería el orden que debe seguir la presentación, que elementos incluir y cuál será la estrategia a seguir en la exposición.
+
+Por último, también se habló sobre dejar terminada la tarea 14, correspondiente a la memoria Scrum con las respectivas sesiones de este segundo Sprint. De esta manera, ya habremos cubierto todas las tareas.
+
+### Sprint Retrospective
+
+Al final de esta sesión, teniendo en cuenta que no hay más sesiones antes de la exposición, se evaluó el flujo de trabajo que ha seguido el equipo durante este segundo sprint, evaluando la realización de las distintas tareas en el periodo de tiempo definido para cada una de ellas. Al igual que en el primer Sprint, las tareas se llevaron a cabo satisfactoriamente y dentro de los plazos correspondientes, por lo tanto, la estrategia adoptada de elaboraciones individuales y posterior puesta en común volvió a ser eficaz en este segundo Sprint. 

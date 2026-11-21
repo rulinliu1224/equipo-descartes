@@ -1,0 +1,65 @@
+@startuml diagrama_componentes_alvaro
+title Diagrama de Componentes - Sistema de Facturación
+skinparam linetype ortho
+skinparam shadowing false
+skinparam nodesep 70
+skinparam ranksep 60
+
+actor "Usuario\n(Operativo / Administrador /\nSuperadministrador)" as usuario
+actor "Sistema externo\n(API externa autenticada)" as sistemaExterno
+
+package "Sistema de Facturación" {
+  component "[Interfaz de Usuario]\n(Aplicación Web)" as interfazUsuario
+  component "[API REST]" as apiRest
+
+  node "Backend" as backend {
+    component "[Tareas Programadas]" as tareasProgramadas
+    interface ICobros
+    ' espacios: evitan que la flecha pise la etiqueta
+    interface "ICliente<U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0><U+00A0>" as ICliente
+    interface IControl
+    component "Usuarios y Permisos" as usuariosPermisos
+    component "Clientes y Suscripciones" as clientesSuscripciones
+    component "Facturación y Cobros" as facturacionCobros
+    component "Control y Seguimiento" as controlSeguimiento
+  }
+
+  database "Base de Datos" as baseDatos
+  database "Almacén de PDF" as almacenPdf
+}
+
+cloud "Sistemas Externos" {
+  component "[Stripe]\nPasarela de Pagos" as stripe
+  component "[Email / WhatsApp]\nNotificaciones" as notificaciones
+}
+
+' [hidden]: solo fija la colocación
+sistemaExterno -[hidden]right- usuario
+usuario -down-> interfazUsuario
+interfazUsuario -down-> apiRest : API interna
+sistemaExterno -down-> apiRest
+apiRest .down.> backend
+
+tareasProgramadas .down.> ICliente
+tareasProgramadas .down.> ICobros
+ICliente -down- clientesSuscripciones
+ICobros -down- facturacionCobros
+usuariosPermisos -[hidden]right- clientesSuscripciones
+clientesSuscripciones -[hidden]right- facturacionCobros
+facturacionCobros .left.> ICliente
+
+usuariosPermisos .right.> IControl
+IControl <.up. clientesSuscripciones
+facturacionCobros .left.> IControl
+IControl -down- controlSeguimiento
+
+clientesSuscripciones .down.> stripe
+facturacionCobros .down.> stripe
+usuariosPermisos .down.> notificaciones
+facturacionCobros .down.> notificaciones
+controlSeguimiento .down.> notificaciones
+
+backend .up.> baseDatos
+baseDatos -[hidden]right- apiRest
+facturacionCobros .down.> almacenPdf
+@enduml

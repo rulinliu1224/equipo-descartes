@@ -1,0 +1,25 @@
+@startuml CU17_configurar_parametros
+title CU-17: Configurar parámetros del sistema
+hide footbox
+skinparam shadowing false
+
+actor "Superadministrador" as actorSuperadmin
+boundary ":Interfaz" as interfaz
+entity "superadmin:Superadministrador" as superadmin
+database ":BD" as bd
+
+actorSuperadmin -> interfaz : abre la configuración
+interfaz --> actorSuperadmin : parámetros por sección
+actorSuperadmin -> interfaz : modifica una sección
+opt plantilla de email/WhatsApp
+  interfaz --> actorSuperadmin : vista previa
+end
+interfaz -> interfaz : validarDatos(seccion, valores) : boolean
+alt datos no válidos
+  interfaz --> actorSuperadmin : error
+else datos válidos
+  interfaz -> superadmin : configurarSistema()
+  superadmin -> bd : guardar(seccion, valores)
+  interfaz --> actorSuperadmin : configuración guardada
+end
+@enduml

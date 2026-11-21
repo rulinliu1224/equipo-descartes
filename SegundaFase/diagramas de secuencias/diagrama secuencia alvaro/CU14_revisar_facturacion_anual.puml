@@ -1,0 +1,31 @@
+@startuml CU14_revisar_facturacion_anual
+title CU-14: Revisar facturación anual
+hide footbox
+skinparam shadowing false
+
+actor "Administrador" as actorAdmin
+boundary ":Interfaz" as interfaz
+entity "admin:Administrador" as admin
+entity "cliente:Cliente" as cliente
+entity "factura:Factura" as factura
+entity ":Historial" as historial
+
+actorAdmin -> interfaz : abre la revisión anual del cliente
+interfaz -> cliente : consultarFacturas()
+cliente --> interfaz : facturas : List<Factura>
+loop por cada factura de los últimos 12 meses
+  interfaz -> factura : calcularTotal()
+  factura --> interfaz : total : double
+end
+interfaz --> actorAdmin : resumen anual
+
+alt mantiene la tarifa
+  actorAdmin -> interfaz : mantener
+else <<extend>> cambia de rango
+  actorAdmin -> interfaz : nueva tarifa y fecha
+  interfaz -> admin : solicitarAprobacion(motivo, nuevaTarifa)
+  ref over admin : CU-15 Solicitar aprobación
+  admin --> interfaz : aprobacion : Aprobacion
+end
+interfaz -> historial : registrar("revisión anual")
+@enduml

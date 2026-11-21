@@ -1,0 +1,33 @@
+@startuml CU08_gestionar_usuarios_permisos
+title CU-08: Gestionar usuarios y permisos
+hide footbox
+skinparam shadowing false
+
+actor "Administrador" as actorAdmin
+boundary ":Interfaz" as interfaz
+entity "admin:Administrador" as admin
+entity "usuario:UsuarioOperativo" as usuario
+entity "cliente:Cliente" as cliente
+actor "Email/WhatsApp" as email
+
+alt crear usuario
+  actorAdmin -> interfaz : datos, email, rol y clientes
+  interfaz -> interfaz : validarEmail(email) : boolean
+  alt email no corporativo o ya registrado
+    interfaz --> actorAdmin : error
+  else email válido
+    interfaz -> admin : crearUsuario(usuario)
+    admin -> usuario ** : crear
+    interfaz -> cliente : reasignarResponsable(usuario)
+    interfaz ->> email : enlace de activación
+  end
+else asignar / revocar permiso
+  actorAdmin -> interfaz : usuario y permiso
+  interfaz -> admin : asignarPermiso(usuario, permiso) / revocarPermiso(usuario, permiso)
+else desactivar usuario
+  actorAdmin -> interfaz : desactivar usuario
+  interfaz -> admin : desactivarUsuario(usuario)
+  interfaz -> cliente : reasignarResponsable(nuevoResponsable)
+end
+interfaz --> actorAdmin : confirmación
+@enduml

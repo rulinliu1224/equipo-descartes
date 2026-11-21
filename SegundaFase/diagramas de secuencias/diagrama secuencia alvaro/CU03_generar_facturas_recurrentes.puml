@@ -1,0 +1,32 @@
+@startuml CU03_generar_facturas_recurrentes
+title CU-03: Generar facturas recurrentes automáticas (día 1)
+hide footbox
+skinparam shadowing false
+
+actor "Sistema / Administrador" as sistema
+participant "FacturaRecurrente" as claseFacturaRecurrente
+entity "factura:FacturaRecurrente" as factura
+entity "cliente:Cliente" as cliente
+
+loop por cada suscripción activa
+  sistema -> sistema : existeFactura(suscripcion, periodo) : boolean
+  alt ya existe la factura del periodo
+    sistema -> sistema : omitirCliente(suscripcion)
+  else no existe
+    sistema -> claseFacturaRecurrente : generarMensual(suscripcion)
+    claseFacturaRecurrente -> factura ** : crear
+    claseFacturaRecurrente --> sistema : factura : FacturaRecurrente
+    opt alta a mitad del mes anterior
+      sistema -> factura : calcularProrrateo()
+      factura --> sistema : ajuste : double
+    end
+    sistema -> factura : calcularTotal()
+    factura --> sistema : total : double
+    sistema -> factura : emitir()
+    factura -> factura : generarPDF()
+    sistema -> cliente : recalcularDeuda()
+    cliente --> sistema : deuda : double
+    ref over sistema, factura : <<include>> CU-05 Enviar facturas y recordatorios
+  end
+end
+@enduml

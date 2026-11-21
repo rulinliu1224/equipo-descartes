@@ -1,0 +1,34 @@
+@startuml CU11_buscar_consultar
+title CU-11: Buscar y consultar
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+database ":BD" as bd
+entity "cliente:Cliente" as cliente
+
+alt búsqueda
+  actorUsuario -> interfaz : texto y filtros
+  interfaz -> bd : buscar(texto, filtros, usuario)
+  bd --> interfaz : resultados : List
+  interfaz --> actorUsuario : resultados
+  opt abre un cliente
+    interfaz -> cliente : consultarFacturas()
+    cliente --> interfaz : facturas : List<Factura>
+    interfaz -> bd : obtenerHistorial(cliente)
+    bd --> interfaz : historial : List<Historial>
+    interfaz --> actorUsuario : ficha con facturas e historial
+  end
+else pendientes
+  actorUsuario -> interfaz : abre sus pendientes
+  interfaz -> bd : obtenerPendientes(usuario)
+  bd --> interfaz : pendientes : List
+  interfaz --> actorUsuario : lista de pendientes
+else notificaciones
+  actorUsuario -> interfaz : abre sus notificaciones
+  interfaz -> bd : obtenerNotificaciones(usuario)
+  bd --> interfaz : notificaciones : List
+  interfaz --> actorUsuario : lista de notificaciones
+end
+@enduml

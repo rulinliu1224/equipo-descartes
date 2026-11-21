@@ -1,0 +1,40 @@
+@startuml CU07_gestionar_cobros
+title CU-07: Gestionar cobros
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+actor "Stripe" as stripe
+boundary ":Interfaz / Webhook" as interfaz
+entity "comprobante:ComprobantePago" as comprobante
+entity "factura:Factura" as factura
+entity "cliente:Cliente" as cliente
+
+alt pago vía Stripe
+  stripe -> interfaz : evento de pago (firma)
+  interfaz -> interfaz : validarFirma(firma) : boolean
+  break firma no válida
+    interfaz --> stripe : evento descartado
+  end
+else registro manual
+  actorUsuario -> interfaz : factura, importe, medio y referencia
+end
+
+interfaz -> comprobante ** : crear(importe, fecha, medio, referencia)
+opt registro manual
+  interfaz -> comprobante : registrarPagoManual(factura)
+end
+
+interfaz -> comprobante : validar()
+comprobante --> interfaz : valido : boolean
+alt pago duplicado
+  interfaz -> interfaz : descartarPago(comprobante)
+else pago válido
+  interfaz -> factura : registrarPago(comprobante)
+  interfaz -> cliente : recalcularDeuda()
+  cliente --> interfaz : deuda : double
+  opt cliente en "Baja con deuda" y sin deuda pendiente
+    interfaz -> cliente : darDeBaja()
+  end
+end
+@enduml

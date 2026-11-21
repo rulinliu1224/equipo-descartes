@@ -1,0 +1,33 @@
+@startuml CU06_consultar_informes
+title CU-06: Consultar informes y exportar
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "usuario:UsuarioOperativo" as usuario
+entity "informe:Informe" as informe
+
+actorUsuario -> interfaz : tipo, rango de fechas y filtros
+interfaz -> usuario : tienePermiso(permisoInformes)
+usuario --> interfaz : permitido : boolean
+break sin permiso
+  interfaz --> actorUsuario : acceso denegado
+end
+
+alt rango de fechas no válido
+  interfaz --> actorUsuario : corregir el rango
+else rango válido
+  interfaz -> informe ** : crear
+  interfaz -> informe : generar(desde, hasta)
+  interfaz -> informe : getTotales()
+  informe --> interfaz : facturado, cobrado, pendiente, vencido : double
+  interfaz --> actorUsuario : gráficos y tablas
+  opt exportar
+    actorUsuario -> interfaz : CSV o PDF
+    interfaz -> informe : exportarCSV() / exportarPDF()
+    informe --> interfaz : archivo : File
+    interfaz --> actorUsuario : descarga del archivo
+  end
+end
+@enduml

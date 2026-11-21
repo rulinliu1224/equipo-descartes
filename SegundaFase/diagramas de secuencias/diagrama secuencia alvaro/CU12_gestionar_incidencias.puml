@@ -1,0 +1,28 @@
+@startuml CU12_gestionar_incidencias
+title CU-12: Gestionar incidencias
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "incidencia:Incidencia" as incidencia
+entity ":Historial" as historial
+
+actorUsuario -> interfaz : título, descripción y prioridad
+interfaz -> incidencia ** : crear("Abierta")
+opt es una disputa de factura
+  ref over actorUsuario, interfaz : CU-07b Pausar recordatorios por disputa
+end
+
+actorUsuario -> interfaz : comentario
+interfaz -> incidencia : ponerEnCurso()
+
+actorUsuario -> interfaz : resolución
+interfaz -> incidencia : cerrar()
+
+opt el problema persiste
+  actorUsuario -> interfaz : reabrir
+  interfaz -> incidencia : reabrir()
+end
+interfaz -> historial : registrar(accion)
+@enduml

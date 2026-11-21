@@ -1,0 +1,24 @@
+@startuml CU10_importar_clientes_csv
+title CU-10: Importar clientes desde CSV
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+participant "Cliente" as claseCliente
+
+actorUsuario -> interfaz : sube el fichero CSV
+interfaz -> interfaz : validarFormato(fichero) : boolean
+alt formato no válido
+  interfaz --> actorUsuario : fichero rechazado
+else formato válido
+  interfaz --> actorUsuario : previsualización por fila
+  alt cancela
+    interfaz --> actorUsuario : no se guarda nada
+  else confirma
+    interfaz ->> claseCliente : importarCSV(fichero)
+    claseCliente -->> interfaz : procesados : int
+    interfaz --> actorUsuario : resumen: creados, actualizados y rechazados
+  end
+end
+@enduml

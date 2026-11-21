@@ -1,0 +1,38 @@
+@startuml CU04_gestionar_facturas_puntuales
+title CU-04: Gestionar facturas puntuales
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "usuario:UsuarioOperativo" as usuario
+entity "factura:Factura" as factura
+
+actorUsuario -> interfaz : cliente, líneas y fechas
+interfaz -> usuario : generarFactura(cliente, fechaEmision, fechaVencimiento)
+usuario -> factura ** : crear("Borrador")
+usuario --> interfaz : factura : Factura
+interfaz -> factura : calcularTotal()
+factura --> interfaz : total : double
+interfaz -> factura : generarVistaPrevia()
+interfaz --> actorUsuario : vista previa
+
+opt edita el borrador
+  actorUsuario -> interfaz : modifica líneas
+  interfaz -> factura : calcularTotal()
+  factura --> interfaz : total : double
+end
+
+alt descarta
+  interfaz -> factura !! : eliminar borrador
+else confirma
+  opt total > umbral
+    interfaz -> usuario : solicitarAprobacion(motivo, total)
+    ref over usuario : <<extend>> CU-15 Solicitar aprobación
+    usuario --> interfaz : aprobacion : Aprobacion
+  end
+  interfaz -> factura : emitir()
+  factura -> factura : generarPDF()
+  ref over interfaz, factura : <<include>> CU-05 Enviar facturas y recordatorios
+end
+@enduml

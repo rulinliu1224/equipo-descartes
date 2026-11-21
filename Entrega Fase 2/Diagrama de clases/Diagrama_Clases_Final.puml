@@ -1,0 +1,221 @@
+@startuml
+skinparam classAttributeIconSize 10
+skinparam packageStyle folder
+
+note as N1
+  Se omiten getters y setters.
+  Los estados cambian solo mediante
+  los métodos de cada clase.
+end note
+
+package "Usuarios y permisos" {
+
+  class UsuarioOperativo {
+    - idUsuario : int
+    - nombre : String
+    - apellido : String
+    - email : String
+    + iniciarSesion(email : String, password : String) : boolean
+    + cerrarSesion() : void
+    + recuperarContrasena() : void
+    + tienePermiso(p : Permiso) : boolean
+    + solicitarAprobacion(motivo : String, cantidad : double) : Aprobacion
+    + generarFactura(c : Cliente, fechaEmision : Date, fechaVencimiento : Date) : Factura
+  }
+
+  class Administrador {
+    - nivelAdministrador : String
+    + crearUsuario(u : UsuarioOperativo) : void
+    + desactivarUsuario(u : UsuarioOperativo) : void
+    + asignarPermiso(u : UsuarioOperativo, p : Permiso) : void
+    + revocarPermiso(u : UsuarioOperativo, p : Permiso) : void
+  }
+
+  class Superadministrador {
+    + configurarSistema() : void
+    + consultarEstadoSistema() : String
+  }
+
+  class Permiso {
+    - idPermiso : String
+    - comentario : String
+  }
+
+  class UsuarioPermiso {
+    - fechaAsignacion : Date
+  }
+
+  UsuarioOperativo <|-- Administrador
+  Administrador <|-- Superadministrador
+  UsuarioOperativo "0..*" -- "0..*" Permiso : tiene
+  (UsuarioOperativo, Permiso) .. UsuarioPermiso
+}
+
+package "Control y seguimiento" {
+
+  class Aprobacion {
+    - idAprobacion : int
+    - fechaSolicitud : Date
+    - estadoAprobacion : String
+    - motivo : String
+    - comentario : String
+    - cantidad : double
+    + aprobar() : void
+    + rechazar(comentario : String) : void
+    + estaPendiente() : boolean
+    + agregarComentario(comentario : String) : void
+  }
+
+  class Informe {
+    - idInforme : int
+    - tipoInforme : String
+    - fechaCreacion : Date
+    + generar(desde : Date, hasta : Date) : void
+    + exportarCSV() : File
+    + exportarPDF() : File
+  }
+
+  class Incidencia {
+    - idIncidencia : int
+    - motivo : String
+    - estado : String
+    - fechaCreacion : Date
+    + ponerEnCurso() : void
+    + cerrar() : void
+    + reabrir() : void
+    + actualizarEstado(nuevoEstado : String) : void
+  }
+
+  class Historial {
+    - idHistorial : int
+    - fecha : DateTime
+    - accion : String
+    + registrar(accion : String) : void
+  }
+}
+
+package "Clientes y suscripciones" {
+
+  class Cliente {
+    - idCliente : int
+    - nombreEmpresa : String
+    - nombreRegistro : String
+    - cif : String
+    - direccion : String
+    - codigoPostal : String
+    - pais : String
+    - moneda : String
+    + darDeAlta() : void
+    + darDeBaja() : void
+    + reactivar() : void
+    + calcularDeuda() : double
+    + recalcularDeuda() : double
+    + tieneFacturasPendientes() : boolean
+    + consultarFacturas() : List<Factura>
+    + agregarContacto(c : ContactoCliente) : void
+    + eliminarContacto(c : ContactoCliente) : void
+    + reasignarResponsable(u : UsuarioOperativo) : void
+    + {static} importarCSV(fichero : String) : int
+  }
+
+  class Plan {
+    - idPlan : int
+    - nombre : String
+    - tarifaBase : decimal
+  }
+
+  class Suscripcion {
+    - idSuscripcion : int
+    - periodicidad : String
+    + pausar() : void
+    + reanudar() : void
+    + cancelar() : void
+    + cambiarPlan(p : Plan) : void
+  }
+
+  class ContactoCliente {
+    - idContacto : int
+    - nombre : String
+    - apellidos : String
+    - telefono : String
+    - correo : String
+    - rolEmpresa : String
+    - estado : String
+    + actualizarDatos() : void
+    + activar() : void
+    + desactivar() : void
+  }
+
+  Cliente "1" -- "1" Suscripcion : paga >
+  Cliente "1" *-- "1..*" ContactoCliente : asociado
+  Plan "1" -- "0..*" Suscripcion : se usa en >
+}
+
+package "Facturación y cobros" {
+
+  class Factura {
+    - idFactura : String
+    - fechaEmision : Date
+    - importe : double
+    - impuestos : double
+    - fechaVencimiento : Date
+    - estadoFactura : String
+    - fechaRevision : Date
+    + calcularTotal() : double
+    + calcularImpuestos(paisCliente : String) : double
+    + generarVistaPrevia() : void
+    + generarPDF() : void
+    + emitir() : void
+    + registrarPago(p : ComprobantePago) : void
+    + estaVencida() : boolean
+    + marcarEnMora() : void
+    + pausarRecordatorios(fechaRevision : Date) : void
+    + reanudarRecordatorios() : void
+  }
+
+  class FacturaRecurrente {
+    + calcularProrrateo() : double
+    + {static} generarMensual(s : Suscripcion) : FacturaRecurrente
+  }
+
+  class ComprobantePago {
+    - idPago : int
+    - importe : decimal
+    - fecha : Date
+    - medio : String
+    - referencia : String
+    + validar() : boolean
+    + registrarPagoManual(f : Factura) : void
+  }
+
+  class Recordatorio {
+    - idRecordatorio : int
+    - fechaEnvio : Date
+    - tipo : String
+    - canal : String
+    - estado : String
+    - intentos : int
+    + enviar() : boolean
+    + reintentar() : boolean
+  }
+
+  Factura <|-- FacturaRecurrente
+  Factura "1" -- "0..*" ComprobantePago : se paga con >
+  Factura "1" -- "0..*" Recordatorio : asociado >
+}
+
+UsuarioOperativo "1" -- "0..*" Aprobacion : pide >
+Administrador "1" -- "0..*" Aprobacion : estudia >
+UsuarioOperativo "1" -- "0..*" Informe : consulta >
+UsuarioOperativo "1" -- "0..*" Incidencia : revisa >
+UsuarioOperativo "1" -- "0..*" Historial : realiza >
+UsuarioOperativo "1" -- "0..*" Cliente : gestiona >
+UsuarioOperativo "1" -- "0..*" Factura : genera >
+UsuarioOperativo "1" -- "0..*" Recordatorio : manda >
+
+Cliente "0..*" -- "1..*" Incidencia : tiene
+Cliente "1" *-- "0..*" Historial : registra
+Cliente "1" -- "0..*" Factura : < le pertenece
+Suscripcion "1" -- "1..*" FacturaRecurrente : genera >
+ContactoCliente "1..*" -- "0..*" Recordatorio : < se envía a
+@enduml

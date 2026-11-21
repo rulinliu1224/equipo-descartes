@@ -1,0 +1,26 @@
+@startuml CU16_aprobar_rechazar_operaciones
+title CU-16: Aprobar o rechazar operaciones
+hide footbox
+skinparam shadowing false
+
+actor "Administrador" as actorAdmin
+boundary ":Interfaz" as interfaz
+entity "aprobacion:Aprobacion" as aprobacion
+entity "suscripcion:Suscripcion" as suscripcion
+
+actorAdmin -> interfaz : abre la bandeja y una solicitud
+interfaz --> actorAdmin : valores actuales y propuestos
+
+alt es el propio solicitante
+  interfaz --> actorAdmin : debe resolverla otro Administrador
+else aprueba
+  interfaz -> aprobacion : aprobar()
+  alt cambio de tarifa
+    interfaz -> suscripcion : cambiarPlan(plan)
+  else factura sobre el umbral
+    interfaz -> interfaz : liberarParaEmision(factura)
+  end
+else rechaza
+  interfaz -> aprobacion : rechazar(motivo)
+end
+@enduml

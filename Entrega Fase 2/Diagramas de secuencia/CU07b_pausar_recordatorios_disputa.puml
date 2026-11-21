@@ -1,0 +1,20 @@
+@startuml CU07b_pausar_recordatorios_disputa
+title CU-07 (extensión): Pausar recordatorios por disputa
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "factura:Factura" as factura
+entity ":Historial" as historial
+
+actorUsuario -> interfaz : pausar (motivo, fecha de revisión)
+interfaz -> factura : pausarRecordatorios(fechaRevision)
+interfaz -> historial : registrar("factura en disputa")
+interfaz --> actorUsuario : recordatorios pausados
+
+opt reanudar
+  actorUsuario -> interfaz : reanudar
+  interfaz -> factura : reanudarRecordatorios()
+end
+@enduml

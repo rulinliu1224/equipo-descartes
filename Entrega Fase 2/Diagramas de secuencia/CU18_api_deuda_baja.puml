@@ -1,0 +1,27 @@
+@startuml CU18_api_deuda_baja
+title CU-18: Consultar deuda y notificar baja (API)
+hide footbox
+skinparam shadowing false
+
+actor "Sistema externo (API)" as sistemaExterno
+boundary ":API" as api
+entity "cliente:Cliente" as cliente
+
+sistemaExterno -> api : petición (credenciales, idCliente)
+api -> api : validarPeticion(credenciales, idCliente) : boolean
+break petición no válida
+  api --> sistemaExterno : error
+end
+
+alt consulta de deuda
+  api -> cliente : consultarFacturas()
+  cliente --> api : facturas : List<Factura>
+  api -> cliente : calcularDeuda()
+  cliente --> api : deuda : double
+  api --> sistemaExterno : facturas pendientes y deuda total
+else solicitud de baja
+  api -> cliente : calcularDeuda()
+  cliente --> api : deuda : double
+  api --> sistemaExterno : solicitud recibida y deuda pendiente
+end
+@enduml

@@ -1,0 +1,33 @@
+@startuml CU05_enviar_facturas_recordatorios
+title CU-05: Enviar facturas y recordatorios de pago
+hide footbox
+skinparam shadowing false
+
+control ":ProcesoProgramado" as proceso
+entity "factura:Factura" as factura
+entity "recordatorio:Recordatorio" as recordatorio
+actor "Stripe" as stripe
+actor "Email/WhatsApp" as email
+
+loop por cada factura emitida, pendiente o en mora
+  proceso -> factura : estaVencida()
+  factura --> proceso : vencida : boolean
+  opt factura vencida
+    proceso -> factura : marcarEnMora()
+  end
+  alt pagada o en disputa
+    proceso -> proceso : omitirEnvio(factura)
+  else pendiente o en mora
+    proceso -> stripe : generar enlace de pago
+    stripe --> proceso : enlacePago : String
+    proceso -> recordatorio ** : crear(factura, tipo, canal)
+    proceso -> recordatorio : enviar()
+    recordatorio -> email : mensaje + PDF + enlacePago
+    recordatorio --> proceso : enviado : boolean
+    opt falla el envío
+      proceso -> recordatorio : reintentar()
+      recordatorio --> proceso : enviado : boolean
+    end
+  end
+end
+@enduml

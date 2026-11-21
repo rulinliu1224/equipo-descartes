@@ -1,0 +1,34 @@
+@startuml CU13_dashboard_estado_sistema
+title CU-13: Consultar dashboard financiero y estado del sistema
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "usuario:UsuarioOperativo" as usuario
+entity "informe:Informe" as informe
+
+actorUsuario -> interfaz : abre el dashboard
+interfaz -> usuario : tienePermiso(permisoDashboard)
+usuario --> interfaz : permitido : boolean
+break sin permiso
+  interfaz --> actorUsuario : acceso denegado
+end
+interfaz -> informe ** : crear
+interfaz -> informe : generar(desde, hasta)
+interfaz -> informe : getIndicadores()
+informe --> interfaz : facturado, cobrado, pendiente, vencido : double
+interfaz --> actorUsuario : indicadores y gráficos
+
+opt exportar
+  interfaz -> informe : exportarCSV() / exportarPDF()
+  informe --> interfaz : archivo : File
+  interfaz --> actorUsuario : descarga del archivo
+end
+
+opt estado del sistema
+  interfaz -> usuario : consultarEstadoSistema()
+  usuario --> interfaz : estado : String
+  interfaz --> actorUsuario : estado del sistema
+end
+@enduml

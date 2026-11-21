@@ -1,0 +1,31 @@
+@startuml CU01_iniciar_sesion
+title CU-01: Iniciar sesión
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "usuario:UsuarioOperativo" as usuario
+actor "Email/WhatsApp" as email
+
+actorUsuario -> interfaz : email y contraseña
+interfaz -> interfaz : validarDominio(email) : boolean
+alt dominio no corporativo
+  interfaz --> actorUsuario : solo cuentas @turbineh.com
+else dominio corporativo
+  interfaz -> usuario : iniciarSesion(email, password)
+  usuario --> interfaz : accesoValido : boolean
+  alt acceso correcto
+    interfaz --> actorUsuario : pantalla principal
+  else credenciales incorrectas o cuenta desactivada
+    interfaz --> actorUsuario : mensaje de error
+  end
+end
+
+opt <<extend>> Recuperar contraseña
+  actorUsuario -> interfaz : recuperar contraseña
+  interfaz -> usuario : recuperarContrasena()
+  usuario ->> email : enlace con caducidad
+  email ->> actorUsuario : correo con el enlace
+end
+@enduml

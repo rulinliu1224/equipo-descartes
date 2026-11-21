@@ -1,0 +1,26 @@
+@startuml CU15_solicitar_aprobacion
+title CU-15: Solicitar aprobación
+hide footbox
+skinparam shadowing false
+
+actor "Solicitante" as solicitante
+boundary ":Interfaz" as interfaz
+entity "usuario:UsuarioOperativo" as usuario
+entity "aprobacion:Aprobacion" as aprobacion
+
+interfaz -> usuario : solicitarAprobacion(motivo, cantidad)
+alt ya hay una solicitud pendiente para la misma operación
+  usuario --> interfaz : aprobacion : Aprobacion
+  interfaz --> solicitante : ya hay una solicitud pendiente
+else no existe
+  usuario -> aprobacion ** : crear("Pendiente")
+  usuario --> interfaz : aprobacion : Aprobacion
+  interfaz --> solicitante : pendiente de aprobación
+end
+
+opt el solicitante la retira
+  solicitante -> interfaz : retirar
+  interfaz -> aprobacion : estaPendiente()
+  aprobacion --> interfaz : pendiente : boolean
+end
+@enduml

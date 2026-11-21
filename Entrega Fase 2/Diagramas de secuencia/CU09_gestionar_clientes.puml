@@ -1,0 +1,32 @@
+@startuml CU09_gestionar_clientes
+title CU-09: Gestionar clientes
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "cliente:Cliente" as cliente
+entity "contacto:ContactoCliente" as contacto
+entity ":Historial" as historial
+
+alt alta
+  actorUsuario -> interfaz : datos comerciales, fiscales y contactos
+  interfaz -> interfaz : validarDatos(datos) : boolean
+  alt datos no válidos
+    interfaz --> actorUsuario : error
+  else datos válidos
+    interfaz -> cliente ** : crear
+    interfaz -> cliente : darDeAlta()
+    interfaz -> contacto ** : crear
+    interfaz -> cliente : agregarContacto(contacto)
+    interfaz --> actorUsuario : ofrece configurar la suscripción
+  end
+else modificación
+  actorUsuario -> interfaz : edita y guarda
+else baja
+  interfaz -> cliente : darDeBaja()
+else reactivación
+  interfaz -> cliente : reactivar()
+end
+interfaz -> historial : registrar(accion)
+@enduml

@@ -1,0 +1,43 @@
+@startuml CU02_gestionar_suscripcion
+title CU-02: Gestionar suscripción y baja de cliente
+hide footbox
+skinparam shadowing false
+
+actor "Usuario operativo" as actorUsuario
+boundary ":Interfaz" as interfaz
+entity "usuario:UsuarioOperativo" as usuario
+entity "cliente:Cliente" as cliente
+entity "suscripcion:Suscripcion" as suscripcion
+entity ":Historial" as historial
+actor "Stripe" as stripe
+
+actorUsuario -> interfaz : selecciona cliente
+interfaz -> cliente : calcularDeuda()
+cliente --> interfaz : deuda : double
+interfaz --> actorUsuario : estado de la suscripción y deuda
+
+alt baja de la recurrencia
+  actorUsuario -> interfaz : baja (motivo, fecha)
+  interfaz -> cliente : tieneFacturasPendientes()
+  cliente --> interfaz : tienePendientes : boolean
+  opt tiene facturas pendientes
+    interfaz --> actorUsuario : aviso del importe pendiente
+    actorUsuario -> interfaz : confirma
+  end
+  interfaz -> suscripcion : cancelar()
+  suscripcion -> stripe : cancelar suscripción
+  stripe --> suscripcion : confirmación de cancelación
+  interfaz -> cliente : darDeBaja()
+else cambio de plan o tarifa
+  actorUsuario -> interfaz : nuevo plan
+  interfaz -> usuario : solicitarAprobacion(motivo, nuevaTarifa)
+  ref over usuario : <<include>> CU-15 Solicitar aprobación
+  usuario --> interfaz : aprobacion : Aprobacion
+else pausa
+  actorUsuario -> interfaz : fechas y motivo
+  interfaz -> suscripcion : pausar()
+end
+
+interfaz -> historial : registrar(accion)
+interfaz --> actorUsuario : confirmación
+@enduml
